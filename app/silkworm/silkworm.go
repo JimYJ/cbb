@@ -29,7 +29,8 @@ func EditLevel(c *gin.Context) {
 
 func handelLevel(c *gin.Context, isEdit bool) {
 	redeemitem := c.PostForm("redeemitem")
-	if redeemitem == "" {
+	exp := c.PostForm("exp")
+	if redeemitem == "" || !common.CheckInt(exp) {
 		middleware.RedirectErr("level", common.AlertError, common.AlertParamsError, c)
 		return
 	}
@@ -40,7 +41,7 @@ func handelLevel(c *gin.Context, isEdit bool) {
 			middleware.RedirectErr("level", common.AlertError, common.AlertParamsError, c)
 			return
 		}
-		_, err := silkworm.EditLevel(redeemitem, nowTime, id)
+		_, err := silkworm.EditLevel(redeemitem, exp, nowTime, id)
 		if err != nil {
 			log.Println(err)
 			middleware.RedirectErr("level", common.AlertFail, common.AlertSaveFail, c)
