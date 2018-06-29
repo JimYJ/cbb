@@ -1,0 +1,9 @@
+appid : edbc2ac50e0f1c5e1c40adc93db5a06d5c1289e5345658ff11f811577b5d85d6
+secretkey : b781047e808b9cbbab561b43ec7621a71b04ad5f78feb792e8b612e334cce8f7369ad9d115112a75642be973c3fe65ba
+host : 127.0.0.1
+mysql :
+  host : 111.231.88.174
+  port : 3306 #20001
+  dbname : canbaobao
+  user : root
+  pass : "4978153y~!@#"
