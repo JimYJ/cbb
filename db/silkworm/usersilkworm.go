@@ -26,3 +26,9 @@ func Hatch(uid, rucksackid string, swtype int) bool {
 	mysqlConn.TxCommit()
 	return true
 }
+
+// GetUserSilkworm 获得用户蚕宝宝列表
+func GetUserSilkworm(id string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select id,swtype,hatch,exp,name,level,swid from usersw where uid = ?", id)
+}

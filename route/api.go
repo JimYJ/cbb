@@ -37,6 +37,14 @@ func API() {
 	api.POST("/hatchfornormal", silkworm.HatchForNormal)
 	// 孵化特殊蚕仔
 	api.POST("/hatchforspecial", silkworm.HatchForSpecial)
+	// 获得自己的蚕宝宝列表
+	api.POST("/usersilkwormlist", silkworm.UserSilkwormList)
+	// 获得好友的蚕宝宝列表
+	api.POST("/friendsilkwormlist", silkworm.FriendSilkwormList)
+	// 获得自己未拾取桑叶列表
+	api.POST("/untakeleaf", silkworm.GetUntakeLeaf)
+	// 拾取桑叶
+	api.POST("/takeleaf", silkworm.TakeLeaf)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
-	router.Run(":80")
+	router.Run(":845")
 }

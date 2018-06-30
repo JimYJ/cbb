@@ -72,3 +72,20 @@ func GetUserSWID(openid string, swtype int) (string, string, error) {
 	id, _ := mysqlConn.GetVal(mysql.Statement, "select rucksack.id from rucksack left join user on uid = user.id where openid = ? and take = ? and swtype = ? limit 1", openid, 1, swtype)
 	return "1", id, nil
 }
+
+// GetUserLeafUntake 获得用户未拾取桑叶
+func GetUserLeafUntake(openid string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select rucksack.id from rucksack left join user on uid = user.id where openid = ? and take = ? and itemid = ? order by id", openid, 0, 1)
+}
+
+// TakeLeaf 收取桑叶
+func TakeLeaf(openid, id string) (int64, error) {
+	mysqlConn := common.GetMysqlConn()
+	uinfo, err := GetUID(openid)
+	if err != nil {
+		return 0, err
+	}
+	uid := uinfo["id"]
+	return mysqlConn.Update(mysql.Statement, "update rucksack set take = ? where uid = ? and id = ?", 1, uid, id)
+}

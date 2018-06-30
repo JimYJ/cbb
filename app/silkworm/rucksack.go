@@ -50,3 +50,50 @@ func AddItemToRucksack(activeType int, openid, itemid, nowTime, moreInfo string,
 		log.Println("Save User Active Fail", err)
 	}
 }
+
+// GetUntakeLeaf 获取未拾取桑叶列表
+func GetUntakeLeaf(c *gin.Context) {
+	openid := c.PostForm("openid")
+	if openid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	list, err := silkworm.GetUserLeafUntake(openid)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	itemInfo, _ := silkworm.ItemInfo("1")
+	img := itemInfo["img"]
+	for i := 0; i < len(list); i++ {
+		list[i]["img"] = img
+	}
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"list": list,
+	})
+}
+
+// TakeLeaf 收取桑叶
+func TakeLeaf(c *gin.Context) {
+	openid := c.PostForm("openid")
+	id := c.PostForm("id")
+	if openid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	rs, err := silkworm.TakeLeaf(openid, id)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	if rs > 0 {
+		responSuccess(c)
+	} else {
+		middleware.RespondErr(402, common.Err402UserItemNoExist, c)
+		return
+	}
+
+}

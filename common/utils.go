@@ -11,6 +11,7 @@ import (
 	"github.com/satori/go.uuid"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -197,4 +198,15 @@ func ChangeMapInt(m map[string]string) map[string]int {
 		temp[k] = vInt
 	}
 	return temp
+}
+
+// CalcExpPercent 计算经验值百分比
+func CalcExpPercent(levelExp, nowExp, nextLevelExp string) int {
+	a, err := strconv.Atoi(levelExp)
+	b, err2 := strconv.Atoi(nowExp)
+	c, err3 := strconv.Atoi(nextLevelExp)
+	if err != nil || err2 != nil || err3 != nil {
+		return 0
+	}
+	return int(math.Floor(float64(b-a) / float64(c-a)))
 }

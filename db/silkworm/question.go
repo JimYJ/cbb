@@ -138,7 +138,7 @@ func GetRandomQuestion() []map[string]string {
 	mysqlConn := common.GetMysqlConn()
 	rs := make([]map[string]string, 3)
 	for i := 0; i < 3; i++ {
-		rs[i], _ = mysqlConn.GetRow(mysql.Statement, "SELECT id,content,itemid FROM question WHERE id >= ((SELECT MAX(id) FROM question)-(SELECT MIN(id) FROM question)) * RAND() + (SELECT MIN(id) FROM question) limit 1")
+		rs[i], _ = mysqlConn.GetRow(mysql.Statement, "SELECT t1.id,content,itemid FROM `question` AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `question`)-(SELECT MIN(id) FROM `question`))+(SELECT MIN(id) FROM `question`)) AS id) AS t2 WHERE t1.id >= t2.id ORDER BY t1.id LIMIT 1")
 	}
 	return rs
 }

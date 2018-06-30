@@ -39,7 +39,7 @@ var (
 	Err201Limit = "The upper limit has been reached today"
 	// Err202Limit 浇水施肥达到本级别上限
 	Err202Limit = "The upper limit has been reached this level"
-	// Err203Limit 浇水施肥达到本级别上限
+	// Err203Limit 同一时间只可孵化一个
 	Err203Limit = "Only one hatch at the same time"
 	//Err401 认证错误
 	Err401 = "Authentication error!"
@@ -54,7 +54,7 @@ var (
 	//Err402UserNotBind 用户未绑定
 	Err402UserNotBind = "User Is Not Bind Vendor!"
 	//Err402UserItemNoExist 物品不存在背包中
-	Err402UserItemNoExist = "racksuck no exist item!"
+	Err402UserItemNoExist = "item is no exist!"
 	//Err403PhoneIsBind 手机号已绑定
 	Err403PhoneIsBind = "Phone is bind!"
 	//Err403Unreg 手机号未注册
