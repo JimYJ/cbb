@@ -61,3 +61,14 @@ func UserRucksackCount(openid string, isTake bool) (string, error) {
 	}
 	return mysqlConn.GetVal(mysql.Statement, "select count(*) from rucksack left join user on uid = user.id where openid = ? and take = ?", openid, take)
 }
+
+// GetUserSWID 获得用户背包蚕仔ID
+func GetUserSWID(openid string, swtype int) (string, string, error) {
+	mysqlConn := common.GetMysqlConn()
+	nums, err := mysqlConn.GetVal(mysql.Statement, "select count(*) as nums from rucksack left join user on uid = user.id where openid = ? and take = ? and swtype = ?", openid, 1, swtype)
+	if err != nil || nums == "0" {
+		return "0", "", err
+	}
+	id, _ := mysqlConn.GetVal(mysql.Statement, "select rucksack.id from rucksack left join user on uid = user.id where openid = ? and take = ? and swtype = ? limit 1", openid, 1, swtype)
+	return "1", id, nil
+}

@@ -14,7 +14,7 @@ const (
 	ActiveVoucher
 	ActiveShare
 	ActiveAnswer
-	ActiveLarva
+	ActiveHatch
 	ActiveSign
 	ActivePair
 )
@@ -29,7 +29,7 @@ var (
 		"获得了兑换券，可兑换物品:",
 		"分享注册成功，获得了物品:",
 		"回答正确，获得物品:",
-		"产下了蚕仔。",
+		"成功孵化了蚕仔。",
 		"连续签到%s，获得了物品:",
 		"配对成功，产下了:",
 	}

@@ -35,10 +35,12 @@ var (
 
 // 错误信息
 var (
-	// Err200Limit 回答问题数达到上限
+	// Err201Limit 回答问题数达到上限
 	Err201Limit = "The upper limit has been reached today"
-	// Err200Limit 浇水施肥达到本级别上限
+	// Err202Limit 浇水施肥达到本级别上限
 	Err202Limit = "The upper limit has been reached this level"
+	// Err203Limit 浇水施肥达到本级别上限
+	Err203Limit = "Only one hatch at the same time"
 	//Err401 认证错误
 	Err401 = "Authentication error!"
 	//Err401login 登录失败
@@ -49,8 +51,10 @@ var (
 	Err401SmsCode = "Sms code is error!"
 	//Err402Param 参数不正确
 	Err402Param = "param is error!"
-	//Err402UserNotBind 参数不正确
+	//Err402UserNotBind 用户未绑定
 	Err402UserNotBind = "User Is Not Bind Vendor!"
+	//Err402UserItemNoExist 物品不存在背包中
+	Err402UserItemNoExist = "racksuck no exist item!"
 	//Err403PhoneIsBind 手机号已绑定
 	Err403PhoneIsBind = "Phone is bind!"
 	//Err403Unreg 手机号未注册

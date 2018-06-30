@@ -33,6 +33,10 @@ func API() {
 	api.POST("/fertilizerfortree", silkworm.FertilizerForTree)
 	// 施肥
 	api.POST("/usersigned", silkworm.UserSigned)
+	// 孵化普通蚕仔
+	api.POST("/hatchfornormal", silkworm.HatchForNormal)
+	// 孵化特殊蚕仔
+	api.POST("/hatchforspecial", silkworm.HatchForSpecial)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
 	router.Run(":80")
 }
