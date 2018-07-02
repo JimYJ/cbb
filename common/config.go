@@ -41,6 +41,8 @@ var (
 	Err202Limit = "The upper limit has been reached this level"
 	// Err203Limit 同一时间只可孵化一个
 	Err203Limit = "Only one hatch at the same time"
+	// Err204Limit 桑树已达最大等级
+	Err204Limit = "tree has reached the maximum level"
 	//Err401 认证错误
 	Err401 = "Authentication error!"
 	//Err401login 登录失败

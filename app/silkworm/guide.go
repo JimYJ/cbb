@@ -6,7 +6,6 @@ import (
 	"canbaobao/db/system"
 	"canbaobao/route/middleware"
 	"canbaobao/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"time"
@@ -53,9 +52,9 @@ func handelGuide(c *gin.Context, isEdit bool) {
 // GetGuideImg 获得攻略图片接口
 func GetGuideImg(c *gin.Context) {
 	list, _ := silkworm.GuideList()
-	imgURL := fmt.Sprintf("%s%s", common.AppPath, list[0]["imgurl"])
+	// imgURL := fmt.Sprintf("%s%s", common.AppPath, list[0]["imgurl"])
 	c.JSON(200, gin.H{
 		"msg": "success",
-		"img": imgURL,
+		"img": list[0]["imgurl"],
 	})
 }

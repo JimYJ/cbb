@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -209,4 +210,15 @@ func CalcExpPercent(levelExp, nowExp, nextLevelExp string) int {
 		return 0
 	}
 	return int(math.Floor(float64(b-a) / float64(c-a)))
+}
+
+// FormatTimeGap 格式化时间间隔-
+func FormatTimeGap(s string) string {
+	if s == "" {
+		return ""
+	}
+	s = strings.Replace(s, "s", "", -1)
+	s = strings.Replace(s, "h", ":", -1)
+	s = strings.Replace(s, "m", ":", -1)
+	return s
 }

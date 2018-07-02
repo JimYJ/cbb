@@ -90,6 +90,10 @@ func waterFertilize(c *gin.Context, isWater bool) {
 	if err != nil {
 		treeLevel = 0
 	}
+	if treeLevel >= 7 {
+		middleware.RespondErr(204, common.Err204Limit, c)
+		return
+	}
 	nowDate := time.Now().Local().Format("2006-01-02")
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	ip := c.ClientIP()

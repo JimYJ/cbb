@@ -46,7 +46,7 @@ func hatch(c *gin.Context, isSpecial bool) {
 		swtype = 0
 	}
 	nums, rucksackid, err := silkworm.GetUserSWID(openid, swtype)
-	log.Println(nums, rucksackid, err)
+	// log.Println(nums, rucksackid, err)
 	if nums == "0" {
 		log.Println("get rucksackid Fail", err)
 		middleware.RespondErr(402, common.Err402UserItemNoExist, c)
@@ -56,7 +56,9 @@ func hatch(c *gin.Context, isSpecial bool) {
 	uid := uinfo["id"]
 	uname := uinfo["name"]
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
-	rsults := silkworm.Hatch(uid, rucksackid, swtype)
+	enablehous, _ := time.ParseDuration("12h")
+	enabletime := time.Now().Local().Add(enablehous).Unix()
+	rsults := silkworm.Hatch(uid, rucksackid, swtype, enabletime)
 	if rsults {
 		// 记录动态
 		_, err = silkworm.SaveUserActive(silkworm.ActiveHatch, uname, uid, "", "-1", nowTime, "")
@@ -81,7 +83,8 @@ func userSilkwormList(c *gin.Context, uid string) {
 		return
 	}
 	levelList, _ := silkworm.LevelList()
-	butterflyList, _ := silkworm.LevelList()
+	butterflyList, _ := silkworm.ButterflyList()
+	nowUnix := time.Now().Local().Unix()
 	for i := 0; i < len(list); i++ {
 		if list[i]["hatch"] == "0" {
 			list[i]["dialog"] = silkworm.GetRandomDialog()
@@ -98,11 +101,24 @@ func userSilkwormList(c *gin.Context, uid string) {
 				list[i]["expPercent"] = strconv.Itoa(common.CalcExpPercent(list[i]["levelExp"], list[i]["exp"], list[i]["nextLevelExp"]))
 			}
 		} else {
-			for j := 0; j < len(levelList); j++ {
+			for j := 0; j < len(butterflyList); j++ {
 				if list[i]["swid"] == butterflyList[j]["id"] {
-					list[i]["img"] = levelList[j]["img"]
+					list[i]["img"] = butterflyList[j]["img"]
 				}
 			}
+		}
+		if list[i]["enable"] == "1" {
+			list[i]["enabletime"] = "0"
+		} else if list[i]["enable"] == "0" {
+			enabletime, _ := strconv.ParseInt(list[i]["enabletime"], 10, 64)
+			if enabletime-nowUnix > 0 {
+				t, _ := time.ParseDuration(fmt.Sprintf("%ds", enabletime-nowUnix))
+				list[i]["enabletime"] = common.FormatTimeGap(t.String())
+			} else {
+				list[i]["enabletime"] = "0"
+				silkworm.Enable(list[i]["id"])
+			}
+
 		}
 	}
 	c.JSON(200, gin.H{
