@@ -45,6 +45,10 @@ func API() {
 	api.POST("/untakeleaf", silkworm.GetUntakeLeaf)
 	// 拾取桑叶
 	api.POST("/takeleaf", silkworm.TakeLeaf)
+	// 获得好友未拾取桑叶列表
+	api.POST("/friendleaf", silkworm.GetFriendUntakeLeaf)
+	// 偷桑叶
+	api.POST("/stealleaf", silkworm.TakeFriendLeaf)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
-	router.Run(":845")
+	router.Run(":80")
 }

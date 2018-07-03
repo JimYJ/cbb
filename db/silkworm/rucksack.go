@@ -3,6 +3,7 @@ package silkworm
 import (
 	"canbaobao/common"
 	"github.com/JimYJ/easysql/mysql"
+	"log"
 	"strconv"
 )
 
@@ -88,4 +89,36 @@ func TakeLeaf(openid, id string) (int64, error) {
 	}
 	uid := uinfo["id"]
 	return mysqlConn.Update(mysql.Statement, "update rucksack set take = ? where uid = ? and id = ?", 1, uid, id)
+}
+
+// GetUserLeafUntakeByID 获得用户未拾取桑叶
+func GetUserLeafUntakeByID(id string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select id from rucksack where uid = ? and take = ? and itemid = ? order by id", id, 0, 1)
+}
+
+// TakeLeafByID 收取桑叶
+func TakeLeafByID(openid, loseUID, id string) int {
+	mysqlConn := common.GetMysqlConn()
+	uinfo, err := GetUID(openid)
+	if err != nil {
+		return -1
+	}
+	takeUID := uinfo["id"]
+	mysqlConn.TxBegin()
+	var err2 error
+	rs, err := mysqlConn.Delete(mysql.Statement, "delete from rucksack where uid = ? and id = ? and take = ? and itemid = ?", loseUID, id, 0, 1)
+	if rs >= 1 {
+		_, err2 = mysqlConn.Insert(mysql.Statement, "insert into rucksack set take = ?,uid = ?,itemid = ?,swtype = ?", 1, takeUID, 1, -1)
+	} else {
+		mysqlConn.TxRollback()
+		return -1
+	}
+	if err != nil || err2 != nil {
+		log.Println(err, err2)
+		mysqlConn.TxRollback()
+		return -2
+	}
+	mysqlConn.TxCommit()
+	return 1
 }

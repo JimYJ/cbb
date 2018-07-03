@@ -23,10 +23,12 @@ func Web() {
 	router.Use(gin.Recovery())
 	router.Static("/assets", "./statics/assets")
 	router.Static("/upload", "./statics/upload")
+	router.StaticFile("/MP_verify_Mf5ZD3XPRzBVSN2v.txt", "./statics/MP_verify_Mf5ZD3XPRzBVSN2v.txt")
 	router.LoadHTMLGlob("statics/html/*")
 	router.Use(middleware.Cors())
 
 	api = router.Group("/api")
+	api = router.Group("/wx")
 
 	// ----------------------- web 路径 ---------------------------
 	bms := router.Group("/")

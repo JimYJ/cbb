@@ -16,3 +16,10 @@ func responSignSuccess(c *gin.Context, days int64) {
 		"signdays": days,
 	})
 }
+
+func responIntInfoSuccess(c *gin.Context, key string, i int) {
+	c.JSON(200, gin.H{
+		"msg": "success",
+		key:   i,
+	})
+}

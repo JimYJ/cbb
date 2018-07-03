@@ -97,3 +97,47 @@ func TakeLeaf(c *gin.Context) {
 	}
 
 }
+
+// GetFriendUntakeLeaf 获取未拾取桑叶列表
+func GetFriendUntakeLeaf(c *gin.Context) {
+	id := c.PostForm("id")
+	if id == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	list, err := silkworm.GetUserLeafUntakeByID(id)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	itemInfo, _ := silkworm.ItemInfo("1")
+	img := itemInfo["img"]
+	for i := 0; i < len(list); i++ {
+		list[i]["img"] = img
+	}
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"list": list,
+	})
+}
+
+// TakeFriendLeaf 偷桑叶
+func TakeFriendLeaf(c *gin.Context) {
+	openid := c.PostForm("openid")
+	loseUID := c.PostForm("loseuid") // 被偷用户
+	id := c.PostForm("id")
+	if openid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	rs := silkworm.TakeLeafByID(openid, loseUID, id)
+	if rs == -1 {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	} else if rs == -2 {
+		middleware.RespondErr(500, common.Err500DBSave, c)
+		return
+	}
+	responSuccess(c)
+}

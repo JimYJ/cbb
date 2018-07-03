@@ -34,6 +34,7 @@ func UserInfoByID(c *gin.Context) {
 		return
 	}
 	uinfo, _ = silkworm.GetSingleUserByID(id)
+	uinfo["butterflys"] = silkworm.GetUseButterflyCountByID(id)
 	c.JSON(200, gin.H{
 		"msg":      "success",
 		"userinfo": uinfo,
@@ -49,6 +50,7 @@ func UserInfoByOpenID(c *gin.Context) {
 		return
 	}
 	uinfo, _ = silkworm.GetSingleUserByOpenID(openid)
+	uinfo["butterflys"] = silkworm.GetUserButterflyCountByOpenID(openid)
 	c.JSON(200, gin.H{
 		"msg":      "success",
 		"userinfo": uinfo,
@@ -110,10 +112,10 @@ func waterFertilize(c *gin.Context, isWater bool) {
 		if treewater+1 >= 15 && treefertilizer >= 15 {
 			rs := upgradeTree(treeLevel, "1", todayFertilizer, nowDate, fertilizerDate, ip, nowTime, uInfo)
 			if !rs {
-				middleware.RespondErr(200, common.Err500DBSave, c)
+				middleware.RespondErr(500, common.Err500DBSave, c)
 				return
 			}
-			responSuccess(c)
+			responIntInfoSuccess(c, "newTreeLevel", treeLevel+1)
 		} else {
 			_, err := silkworm.UpdateWater(treewater+1, nowDate, ip, nowTime, uInfo["id"])
 			if err != nil {
@@ -136,10 +138,10 @@ func waterFertilize(c *gin.Context, isWater bool) {
 		if treefertilizer+1 >= 15 && treewater >= 15 {
 			rs := upgradeTree(treeLevel, todayWater, "1", waterDate, nowDate, ip, nowTime, uInfo)
 			if !rs {
-				middleware.RespondErr(200, common.Err500DBSave, c)
+				middleware.RespondErr(500, common.Err500DBSave, c)
 				return
 			}
-			responSuccess(c)
+			responIntInfoSuccess(c, "newTreeLevel", treeLevel+1)
 		} else {
 			_, err := silkworm.UpdateFertilizer(treefertilizer+1, nowDate, ip, nowTime, uInfo["id"])
 			if err != nil {

@@ -38,3 +38,23 @@ func Enable(id string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.Update(mysql.Statement, "update usersw set enable = ?,enabletime = ? where id = ?", 1, 0, id)
 }
+
+// GetUseButterflyCountByID 统计用户蝴蝶数量
+func GetUseButterflyCountByID(id string) string {
+	mysqlConn := common.GetMysqlConn()
+	str, err := mysqlConn.GetVal(mysql.Statement, "select count(*) from usersw where uid = ? and hatch = ?", id, 1)
+	if err != nil {
+		log.Println(err)
+	}
+	return str
+}
+
+// GetUserButterflyCountByOpenID 统计用户蝴蝶数量
+func GetUserButterflyCountByOpenID(openid string) string {
+	mysqlConn := common.GetMysqlConn()
+	str, err := mysqlConn.GetVal(mysql.Statement, "select count(*) from usersw left join user on user.id = uid where openid = ? and hatch = ?", openid, 1)
+	if err != nil {
+		log.Println(err)
+	}
+	return str
+}
