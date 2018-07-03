@@ -2,12 +2,14 @@ package route
 
 import (
 	"canbaobao/app/silkworm"
+	"canbaobao/app/wechat"
 )
 
 // API 接口路由
 func API() {
 	// ----------------------- 微信相关路径 ---------------------------
-	wx.GET("/start", silkworm.GetGuideImg)
+	wx.GET("/start", wechat.Start)
+	wx.GET("/getuinfo", wechat.GetUserInfo)
 
 	// ----------------------- api 接口路径 ---------------------------
 	// api.GET("/login", app.Login)

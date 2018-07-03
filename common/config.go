@@ -73,6 +73,8 @@ var (
 	Err500CannotGetUID = "Cannot get UID by token!"
 	//Err502SMS 短信发送失败，检查短信平台账户密码
 	Err502SMS = "Sms send fail!"
+	//Err502Wechat 微信接口请求错误
+	Err502Wechat = "request wechat api fail!"
 )
 
 // http状态码

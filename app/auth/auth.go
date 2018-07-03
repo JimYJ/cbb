@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Login 登陆验证
+// Login 后台管理系统登陆验证
 func Login(c *gin.Context) {
 	user := c.PostForm("user")
 	pass := c.PostForm("password")
@@ -55,7 +55,7 @@ func Login(c *gin.Context) {
 	c.Redirect(302, "/voucher")
 }
 
-// Logout 登出
+// Logout 后台管理系统登出
 func Logout(c *gin.Context) {
 	var token string
 	if cookie, err := c.Request.Cookie("c"); err == nil {

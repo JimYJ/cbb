@@ -6,11 +6,17 @@ import (
 	"github.com/JimYJ/easysql/mysql"
 )
 
-// AddUser 新增用户
-func AddUser(vid, name, loginip, openid, nowTime string) (int64, error) {
+// AddUser 新增未激活用户
+func AddUser(avatar, name, loginip, openid, nowTime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.Insert(mysql.Statement, "insert into vendor set vid = ?,name = ?,treelevel = ?,level = ?,loginip = ?,openid = ?,logintime = ?,createtime = ?,updatetime = ?",
-		vid, name, 0, 0, loginip, openid, nowTime, nowTime, nowTime)
+	return mysqlConn.Insert(mysql.Statement, "insert into user set avatar = ?,name = ?,treelevel = ?,level = ?,loginip = ?,openid = ?,logintime = ?,createtime = ?,updatetime = ?,enabled = ?",
+		avatar, name, 0, 0, loginip, openid, nowTime, nowTime, nowTime, 0)
+}
+
+// UserBindVendor 绑定店铺，激活用户
+func UserBindVendor(id, vid, loginip, nowTime string) (int64, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.Insert(mysql.Statement, "update user set vid = ?,loginip = ?,logintime = ?,updatetime = ?,enabled = ? where id = ?", vid, loginip, nowTime, nowTime, 1, id)
 }
 
 // UserUpgrade 用户升级
@@ -28,7 +34,7 @@ func UserTreeUpgrade(id, treelevel, loginip, nowTime string) (int64, error) {
 // GetUser 获取用户
 func getUser() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user ORDER BY id desc")
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user where enabled = ? ORDER BY id desc", 1)
 }
 
 // GetUser 获取用户
@@ -71,8 +77,8 @@ func getSingleUser(id string, isOpenID bool) (map[string]string, error) {
 	} else {
 		field = "id"
 	}
-	sql := fmt.Sprintf("select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user where %s = ?", field)
-	return mysqlConn.GetRow(mysql.Statement, sql, id)
+	sql := fmt.Sprintf("select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user where %s = ? and enabled = ?", field)
+	return mysqlConn.GetRow(mysql.Statement, sql, id, 1)
 }
 
 // GetUserName 获取用户名
