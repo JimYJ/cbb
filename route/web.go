@@ -12,6 +12,7 @@ import (
 
 var (
 	api    *gin.RouterGroup
+	wx     *gin.RouterGroup
 	router *gin.Engine
 )
 
@@ -28,7 +29,7 @@ func Web() {
 	router.Use(middleware.Cors())
 
 	api = router.Group("/api")
-	api = router.Group("/wx")
+	wx = router.Group("/wx")
 
 	// ----------------------- web 路径 ---------------------------
 	bms := router.Group("/")

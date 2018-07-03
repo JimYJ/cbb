@@ -6,6 +6,10 @@ import (
 
 // API 接口路由
 func API() {
+	// ----------------------- 微信相关路径 ---------------------------
+	wx.GET("/start", silkworm.GetGuideImg)
+
+	// ----------------------- api 接口路径 ---------------------------
 	// api.GET("/login", app.Login)
 	// 获取游戏攻略图
 	api.GET("/guide", silkworm.GetGuideImg)
