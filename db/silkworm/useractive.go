@@ -17,11 +17,13 @@ const (
 	ActiveHatch
 	ActiveSign
 	ActivePair
+	ActiveTakeLeaf
+	ActiveStealLeaf
 )
 
 // UserActiveList
 var (
-	ActiveList    = []string{"treeup", "levelup", "bindvendor", "voucher", "share", "answer", "larva", "sign", "pair"}
+	ActiveList    = []string{"treeup", "levelup", "bindvendor", "voucher", "share", "answer", "larva", "sign", "pair", "takeleaf", "stealleaf"}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
 		"的用户等级升级，获得了物品:",
@@ -32,6 +34,8 @@ var (
 		"成功孵化了蚕仔。",
 		"连续签到%s，获得了物品:",
 		"配对成功，产下了:",
+		"拾取了桑叶。",
+		"偷摘了 %s 的桑叶。",
 	}
 )
 
@@ -40,8 +44,8 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 	mysqlConn := common.GetMysqlConn()
 	var content, str string
 
-	if types == 2 || types == 6 || types == 0 {
-		if types == 0 {
+	if types == 2 || types == 6 || types == 0 || types == 9 || types == 10 {
+		if types == 0 || types == 10 {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]

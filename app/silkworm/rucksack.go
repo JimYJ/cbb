@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"strconv"
+	"time"
 )
 
 // UserRucksack 获取用户背包列表
@@ -83,19 +84,28 @@ func TakeLeaf(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
-	rs, err := silkworm.TakeLeaf(openid, id)
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	rs, err := silkworm.TakeLeaf(openid, id, nowTime)
 	if err != nil {
 		log.Println(err)
 		middleware.RespondErr(500, common.Err500DBrequest, c)
 		return
 	}
+	log.Println(rs)
 	if rs > 0 {
+		uinfo, _ := silkworm.GetUID(openid)
+		uid := uinfo["id"]
+		uname := uinfo["name"]
+		// 记录动态
+		_, err = silkworm.SaveUserActive(silkworm.ActiveTakeLeaf, uname, uid, "", "0", nowTime, "")
+		if err != nil {
+			log.Println("Save User Active Fail", err)
+		}
 		responSuccess(c)
 	} else {
 		middleware.RespondErr(402, common.Err402UserItemNoExist, c)
 		return
 	}
-
 }
 
 // GetFriendUntakeLeaf 获取未拾取桑叶列表
@@ -131,13 +141,23 @@ func TakeFriendLeaf(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
-	rs := silkworm.TakeLeafByID(openid, loseUID, id)
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	rs := silkworm.TakeLeafByID(openid, loseUID, id, nowTime)
 	if rs == -1 {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	} else if rs == -2 {
 		middleware.RespondErr(500, common.Err500DBSave, c)
 		return
+	}
+	uinfo, _ := silkworm.GetUID(openid)
+	loseUserName, _ := silkworm.GetUserName(loseUID)
+	uid := uinfo["id"]
+	uname := uinfo["name"]
+	// 记录动态
+	_, err := silkworm.SaveUserActive(silkworm.ActiveStealLeaf, uname, uid, "", "0", nowTime, loseUserName)
+	if err != nil {
+		log.Println("Save User Active Fail", err)
 	}
 	responSuccess(c)
 }

@@ -24,7 +24,6 @@ func Start(c *gin.Context) {
 // GetUserInfo 获得微信用户信息
 func GetUserInfo(c *gin.Context) {
 	code := c.Query("code")
-	log.Println(code)
 	openid, _, err := wechat.GetOpenID(code)
 	if err != nil {
 		log.Println(err)

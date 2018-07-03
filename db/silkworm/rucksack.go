@@ -81,14 +81,14 @@ func GetUserLeafUntake(openid string) ([]map[string]string, error) {
 }
 
 // TakeLeaf 收取桑叶
-func TakeLeaf(openid, id string) (int64, error) {
+func TakeLeaf(openid, id, nowTime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	uinfo, err := GetUID(openid)
 	if err != nil {
 		return 0, err
 	}
 	uid := uinfo["id"]
-	return mysqlConn.Update(mysql.Statement, "update rucksack set take = ? where uid = ? and id = ?", 1, uid, id)
+	return mysqlConn.Update(mysql.Statement, "update rucksack set take = ?,createtime = ?,updatetime = ? where uid = ? and id = ?", 1, nowTime, nowTime, uid, id)
 }
 
 // GetUserLeafUntakeByID 获得用户未拾取桑叶
@@ -98,7 +98,7 @@ func GetUserLeafUntakeByID(id string) ([]map[string]string, error) {
 }
 
 // TakeLeafByID 收取桑叶
-func TakeLeafByID(openid, loseUID, id string) int {
+func TakeLeafByID(openid, loseUID, id, nowTime string) int {
 	mysqlConn := common.GetMysqlConn()
 	uinfo, err := GetUID(openid)
 	if err != nil {
@@ -109,7 +109,7 @@ func TakeLeafByID(openid, loseUID, id string) int {
 	var err2 error
 	rs, err := mysqlConn.Delete(mysql.Statement, "delete from rucksack where uid = ? and id = ? and take = ? and itemid = ?", loseUID, id, 0, 1)
 	if rs >= 1 {
-		_, err2 = mysqlConn.Insert(mysql.Statement, "insert into rucksack set take = ?,uid = ?,itemid = ?,swtype = ?", 1, takeUID, 1, -1)
+		_, err2 = mysqlConn.Insert(mysql.Statement, "insert into rucksack set take = ?,uid = ?,itemid = ?,swtype = ?,createtime = ?,updatetime = ?", 1, takeUID, 1, -1, nowTime, nowTime)
 	} else {
 		mysqlConn.TxRollback()
 		return -1
