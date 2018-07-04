@@ -34,7 +34,7 @@ func UserTreeUpgrade(id, treelevel, loginip, nowTime string) (int64, error) {
 // GetUser 获取用户
 func getUser() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user where enabled = ? ORDER BY id desc", 1)
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user ORDER BY id desc", 1)
 }
 
 // GetUser 获取用户
@@ -77,8 +77,8 @@ func getSingleUser(id string, isOpenID bool) (map[string]string, error) {
 	} else {
 		field = "id"
 	}
-	sql := fmt.Sprintf("select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user where %s = ? and enabled = ?", field)
-	return mysqlConn.GetRow(mysql.Statement, sql, id, 1)
+	sql := fmt.Sprintf("select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user where %s = ?", field)
+	return mysqlConn.GetRow(mysql.Statement, sql, id)
 }
 
 // GetUserName 获取用户名

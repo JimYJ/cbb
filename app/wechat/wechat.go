@@ -13,7 +13,7 @@ import (
 
 var (
 	wechat    = &service.WeChat{}
-	returnURL = "/"
+	returnURL = "http://127.0.0.1/silkworm/index.html"
 )
 
 // Start 转跳授权

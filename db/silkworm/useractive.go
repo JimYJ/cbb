@@ -16,14 +16,36 @@ const (
 	ActiveAnswer
 	ActiveHatch
 	ActiveSign
-	ActivePair
+	ActivePairEnd
 	ActiveTakeLeaf
 	ActiveStealLeaf
+	ActivePairApply
+	ActivePairApplyed
+	ActivePairAllow
+	ActivePairReject
+	ActivePairEndII
 )
 
 // UserActiveList
 var (
-	ActiveList    = []string{"treeup", "levelup", "bindvendor", "voucher", "share", "answer", "larva", "sign", "pair", "takeleaf", "stealleaf"}
+	ActiveList = []string{
+		"treeup",
+		"levelup",
+		"bindvendor",
+		"voucher",
+		"share",
+		"answer",
+		"larva",
+		"sign",
+		"pairend",
+		"takeleaf",
+		"stealleaf",
+		"pairapply",
+		"pairapplyed",
+		"pairallow",
+		"pairreject",
+		"pairendii",
+	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
 		"的用户等级升级，获得了物品:",
@@ -33,9 +55,14 @@ var (
 		"回答正确，获得物品:",
 		"成功孵化了蚕仔。",
 		"连续签到%s，获得了物品:",
-		"配对成功，产下了:",
+		"与 %s 的蝴蝶配对成功，产下了:",
 		"拾取了桑叶。",
 		"偷摘了 %s 的桑叶。",
+		"向 %s 发起了蝴蝶配对申请。",
+		"收到了来自 %s 的蝴蝶配对申请。",
+		"同意了 %s 的蝴蝶配对申请。",
+		"拒绝了 %s 的蝴蝶配对申请。",
+		"与 %s 的蝴蝶配对结束。",
 	}
 )
 
@@ -44,15 +71,15 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 	mysqlConn := common.GetMysqlConn()
 	var content, str string
 
-	if types == 2 || types == 6 || types == 0 || types == 9 || types == 10 {
-		if types == 0 || types == 10 {
+	if types == 2 || types == 6 || types == 0 || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 {
+		if types == 0 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]
 		}
 		content = fmt.Sprintf("%s%s", uname, str)
 	} else {
-		if types == 7 {
+		if types == 7 || types == 8 {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]

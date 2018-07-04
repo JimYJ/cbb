@@ -31,7 +31,7 @@ func AddLeafRucksack(itemid, uid, nowTime string, itemtype int) (int64, error) {
 }
 
 // AddSilkwormRucksack 生成蚕宝宝进入背包
-func AddSilkwormRucksack(itemid, uid, swtype, img, nowTime string, itemtype int) (int64, error) {
+func AddSilkwormRucksack(itemid, uid, swtype, nowTime string, itemtype int) (int64, error) {
 	swtypeint, err := strconv.Atoi(swtype)
 	if err != nil {
 		return 0, err

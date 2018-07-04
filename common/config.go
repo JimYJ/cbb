@@ -43,6 +43,10 @@ var (
 	Err203Limit = "Only one hatch at the same time"
 	// Err204Limit 桑树已达最大等级
 	Err204Limit = "tree has reached the maximum level"
+	// Err205Limit 申请的蚕宝宝未孵化成蝴蝶，无法参与配对
+	Err205Limit = "the requested silkworm did not hatch into butterflies and could not participate in pairing."
+	// Err206Limit 申请的蝴蝶已经申请配对或正在配对中，无法参与配对
+	Err206Limit = "The butterfly has already applied for matching or pairing, unable to participate in matching."
 	//Err401 认证错误
 	Err401 = "Authentication error!"
 	//Err401login 登录失败

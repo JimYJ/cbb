@@ -207,9 +207,10 @@ func CalcExpPercent(levelExp, nowExp, nextLevelExp string) int {
 	b, err2 := strconv.Atoi(nowExp)
 	c, err3 := strconv.Atoi(nextLevelExp)
 	if err != nil || err2 != nil || err3 != nil {
+		log.Println(err, err2, err3)
 		return 0
 	}
-	return int(math.Floor(float64(b-a) / float64(c-a)))
+	return int(math.Floor((float64(b-a) / float64(c-a)) * 100))
 }
 
 // FormatTimeGap 格式化时间间隔-
