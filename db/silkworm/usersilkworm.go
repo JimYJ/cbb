@@ -30,7 +30,7 @@ func Hatch(uid, rucksackid string, swtype int, enabletime int64) bool {
 // GetUserSilkworm 获得用户蚕宝宝列表
 func GetUserSilkworm(id string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,swtype,hatch,exp,name,level,swid,health,enable,enabletime,pair,pairtime from usersw where uid = ?", id)
+	return mysqlConn.GetResults(mysql.Statement, "select id,swtype,hatch,exp,name,level,swid,health,enable,enabletime,pair,pairtime,pairid,pairsrc,pairuid from usersw where uid = ?", id)
 }
 
 // Enable 结束成长时间
@@ -40,7 +40,7 @@ func Enable(id string) (int64, error) {
 }
 
 // ApplyPair 申请配对
-func ApplyPair(id, pairid, uid, pairuid string, pairtime int64) bool {
+func ApplyPair(id, pairid, uid, pairuid string) bool {
 	mysqlConn := common.GetMysqlConn()
 	mysqlConn.TxBegin()
 	_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 1, pairid, pairuid, id)
@@ -58,7 +58,7 @@ func ApplyPair(id, pairid, uid, pairuid string, pairtime int64) bool {
 func AllowPair(id, pairid string, pairtime int64) bool {
 	mysqlConn := common.GetMysqlConn()
 	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ? where id = ?", 0, pairtime, 0, 0, id)
+	_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ? where id = ?", 2, pairtime, id)
 	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ? where id = ?", 2, pairtime, pairid)
 	if err != nil || err2 != nil {
 		log.Println(err, err2)
@@ -105,12 +105,12 @@ func GetUserButterflyCountByOpenID(openid string) string {
 }
 
 // CheckPairCondition 检测是否符合配对条件
-func CheckPairCondition(userswid string) (string, string) {
+func CheckPairCondition(userswid string) (string, string, string) {
 	mysqlConn := common.GetMysqlConn()
-	info, err := mysqlConn.GetRow(mysql.Statement, "select hatch,pair from usersw where id = ?", userswid)
+	info, err := mysqlConn.GetRow(mysql.Statement, "select hatch,pair,uid from usersw where id = ?", userswid)
 	if err != nil {
 		log.Println(err)
-		return "", ""
+		return "", "", ""
 	}
-	return info["hatch"], info["pair"]
+	return info["hatch"], info["pair"], info["uid"]
 }

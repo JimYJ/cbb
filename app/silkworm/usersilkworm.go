@@ -140,6 +140,10 @@ func userSilkwormList(c *gin.Context, uid string) {
 				list[i]["pairstatus"] = "配对中"
 			} else {
 				list[i]["pairtime"] = "0"
+				list[i]["pair"] = "0"
+				list[i]["pairstatus"] = "未配对"
+				list[i]["pairid"] = "0"
+				list[i]["pairsrc"] = "0"
 				silkworm.EndPair(list[i]["pairid"], list[i]["id"])
 				if list[i]["pairsrc"] == "1" {
 					go endPairRuck(uid, list[i]["pairuid"], nowTime)
@@ -180,7 +184,7 @@ func FriendSilkwormList(c *gin.Context) {
 // endPairRuck 结束配对时背包和动态处理
 func endPairRuck(uid, pairuid, nowTime string) {
 	_, err := silkworm.AddSilkwormRucksack("6", uid, "1", nowTime, 0)
-	if err == nil {
+	if err != nil {
 		log.Println("Add Item to Rucksack Fail", err)
 	}
 	uinfo, _ := silkworm.GetSingleUserByID(uid)
@@ -193,7 +197,7 @@ func endPairRuck(uid, pairuid, nowTime string) {
 	if err != nil {
 		log.Println("Save User Active Fail", err)
 	}
-	_, err = silkworm.SaveUserActive(silkworm.ActivePairEndII, pairuname, pairuid, "", "", nowTime, uname)
+	_, err = silkworm.SaveUserActive(silkworm.ActivePairEndII, pairuname, pairuid, "", "0", nowTime, uname)
 	if err != nil {
 		log.Println("Save Pair User Active Fail", err)
 	}
@@ -201,7 +205,13 @@ func endPairRuck(uid, pairuid, nowTime string) {
 
 // ApplyPair 申请配对
 func ApplyPair(c *gin.Context) {
-	uid := c.PostForm("uid")
+	openid := c.PostForm("openid")
+	if openid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	uinfo, _ := silkworm.GetUID(openid)
+	uid := uinfo["id"]
 	pairuid := c.PostForm("pairuid")
 	id := c.PostForm("id")
 	pairid := c.PostForm("pairid")
@@ -209,8 +219,8 @@ func ApplyPair(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
-	hatch, pair1 := silkworm.CheckPairCondition(id)
-	pairhatch, pair2 := silkworm.CheckPairCondition(pairid)
+	hatch, pair1, _ := silkworm.CheckPairCondition(id)
+	pairhatch, pair2, _ := silkworm.CheckPairCondition(pairid)
 	if hatch == "" || pair1 == "" || pairhatch == "" || pair2 == "" {
 		middleware.RespondErr(500, common.Err500DBrequest, c)
 		return
@@ -223,9 +233,7 @@ func ApplyPair(c *gin.Context) {
 		middleware.RespondErr(206, common.Err206Limit, c)
 		return
 	}
-	pairhous, _ := time.ParseDuration("12h")
-	pairtime := time.Now().Local().Add(pairhous).Unix()
-	rs := silkworm.ApplyPair(id, pairid, uid, pairuid, pairtime)
+	rs := silkworm.ApplyPair(id, pairid, uid, pairuid)
 	if !rs {
 		middleware.RespondErr(500, common.Err500DBSave, c)
 		return
@@ -235,11 +243,61 @@ func ApplyPair(c *gin.Context) {
 	responSuccess(c)
 }
 
+// AllowPair 同意配对
+func AllowPair(c *gin.Context) {
+	handlePair(c, false)
+}
+
+// RejectPair 拒绝配对
+func RejectPair(c *gin.Context) {
+	handlePair(c, true)
+}
+
+// RejectPair 拒绝配对
+func handlePair(c *gin.Context, isReject bool) {
+	id := c.PostForm("id")
+	pairid := c.PostForm("pairid")
+	if id == "" || pairid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	hatch, pair1, uid := silkworm.CheckPairCondition(id)
+	pairhatch, pair2, pairuid := silkworm.CheckPairCondition(pairid)
+	if hatch == "" || pair1 == "" || pairhatch == "" || pair2 == "" {
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	if hatch != "1" || pairhatch != "1" {
+		middleware.RespondErr(205, common.Err205Limit, c)
+		return
+	}
+	if pair1 != "1" || pair2 != "1" {
+		middleware.RespondErr(206, common.Err206Limit, c)
+		return
+	}
+	var rs bool
+	if isReject {
+		rs = silkworm.EndPair(id, pairid)
+	} else {
+		pairhous, _ := time.ParseDuration("12h")
+		pairtime := time.Now().Local().Add(pairhous).Unix()
+		rs = silkworm.AllowPair(id, pairid, pairtime)
+	}
+	if !rs {
+		middleware.RespondErr(500, common.Err500DBSave, c)
+		return
+	}
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	if isReject {
+		go userActiveForReject(pairuid, uid, nowTime)
+	} else {
+		go userActiveForAllow(pairuid, uid, nowTime)
+	}
+	responSuccess(c)
+}
+
 func userActiveForApply(pairuid, uid, nowTime string) {
-	uinfo, _ := silkworm.GetSingleUserByID(uid)
-	uname := uinfo["name"]
-	pairuinfo, _ := silkworm.GetSingleUserByID(pairuid)
-	pairuname := pairuinfo["name"]
+	uname, pairuname := getUserInfo(uid, pairuid)
 	_, err := silkworm.SaveUserActive(silkworm.ActivePairApply, uname, uid, "", "0", nowTime, pairuname)
 	if err != nil {
 		log.Println("Save User Active Fail", err)
@@ -248,4 +306,36 @@ func userActiveForApply(pairuid, uid, nowTime string) {
 	if err != nil {
 		log.Println("Save Pair User Active Fail", err)
 	}
+}
+
+func userActiveForAllow(pairuid, uid, nowTime string) {
+	uname, pairuname := getUserInfo(uid, pairuid)
+	_, err := silkworm.SaveUserActive(silkworm.ActivePairAllowII, uname, uid, "", "0", nowTime, pairuname)
+	if err != nil {
+		log.Println("Save Pair User Active Fail", err)
+	}
+	_, err = silkworm.SaveUserActive(silkworm.ActivePairAllow, pairuname, pairuid, "", "0", nowTime, uname)
+	if err != nil {
+		log.Println("Save User Active Fail", err)
+	}
+}
+
+func userActiveForReject(pairuid, uid, nowTime string) {
+	uname, pairuname := getUserInfo(uid, pairuid)
+	_, err := silkworm.SaveUserActive(silkworm.ActivePairRejectII, uname, uid, "", "0", nowTime, pairuname)
+	if err != nil {
+		log.Println("Save Pair User Active Fail", err)
+	}
+	_, err = silkworm.SaveUserActive(silkworm.ActivePairReject, pairuname, pairuid, "", "0", nowTime, uname)
+	if err != nil {
+		log.Println("Save User Active Fail", err)
+	}
+}
+
+func getUserInfo(uid, pairuid string) (string, string) {
+	uinfo, _ := silkworm.GetSingleUserByID(uid)
+	uname := uinfo["name"]
+	pairuinfo, _ := silkworm.GetSingleUserByID(pairuid)
+	pairuname := pairuinfo["name"]
+	return uname, pairuname
 }

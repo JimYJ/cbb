@@ -24,6 +24,8 @@ const (
 	ActivePairAllow
 	ActivePairReject
 	ActivePairEndII
+	ActivePairAllowII
+	ActivePairRejectII
 )
 
 // UserActiveList
@@ -45,6 +47,8 @@ var (
 		"pairallow",
 		"pairreject",
 		"pairendii",
+		"pairallowii",
+		"pairrejectii",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
@@ -63,6 +67,8 @@ var (
 		"同意了 %s 的蝴蝶配对申请。",
 		"拒绝了 %s 的蝴蝶配对申请。",
 		"与 %s 的蝴蝶配对结束。",
+		"的蝴蝶配对申请被 %s 通过。",
+		"的蝴蝶配对申请被 %s 拒绝。",
 	}
 )
 
@@ -71,8 +77,8 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 	mysqlConn := common.GetMysqlConn()
 	var content, str string
 
-	if types == 2 || types == 6 || types == 0 || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 {
-		if types == 0 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 {
+	if types == 2 || types == 6 || types == 0 || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 {
+		if types == 0 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]
