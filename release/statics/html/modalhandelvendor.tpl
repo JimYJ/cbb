@@ -1,7 +1,7 @@
 {{define "modalHandelVendor"}}
 <!--begin::Modal-->
 <div class="modal fade" id="AddEdit" tabindex="-1" role="dialog" aria-labelledby="ModalAdd" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="ModalAdd">
@@ -33,12 +33,25 @@
                         </label>
                         <input type="text" class="form-control" placeholder="负责人电话" id="leaderphone" name="leaderphone">
                     </div>
+                    <div class="form-group">
+                        <label for="name" class="form-control-label">
+                            省市县选择:
+                        </label>
+                        <select id="prov" onchange="showCity(this)" class="form-control m-input--fixed" name="province">
+                        </select>
+                        <!--城市选择-->
+                        <select id="city" onchange="showCountry(this)" class="form-control m-input--fixed" name="city">
+                        </select>
+                        <!--县区选择-->
+                        <select id="country" onchange="selecCountry(this)" class="form-control m-input--fixed" name="county">
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         取消
                     </button>
-                    <input value="确定" type="submit" class="btn btn-primary">
+                    <input value="确定" type="submit" id="btns" class="btn btn-primary">
                     </input >
                 </div>
             </form>

@@ -13,7 +13,7 @@
                     </span>
                 </button>
             </div>
-            <form method="POST" id="handelAction" action="/addgoods">
+            <form method="POST" id="handelAction" action="/addgoods" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="names" class="form-control-label">
@@ -22,10 +22,17 @@
                         <input type="text" class="form-control" placeholder="名称" id="name" name="names">
                     </div>
                     <div class="form-group">
+                        <label for="names" class="form-control-label">
+                            商品大图:
+                        </label>
+                        <input type="file" class="form-control" placeholder="请选择图片" id="data" name="data">
+                    </div>
+                    <div class="form-group">
                         <label for="name" class="form-control-label">
                             商品介绍:
                         </label>
-                        <textarea id="content" name="content" style="display:none"></textarea>
+                        <textarea id="content" name="content" ></textarea>
+                        <!-- style="display:none" -->
                         <div id="we-content">
                         </div>
                     </div>

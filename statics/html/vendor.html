@@ -82,8 +82,8 @@
                                         <th title="content">
                                             负责人电话
                                         </th>
-                                        <th title="createtime">
-                                            创建时间
+                                        <th title="area">
+                                            省市县
                                         </th>
                                         <th title="updatetime">
                                             最后编辑
@@ -109,7 +109,7 @@
                                             {{$v.leaderphone}}
                                         </td>
                                         <td>
-                                            {{$v.createtime}}
+                                            {{$v.area}}
                                         </td>
                                         <td>
                                             {{$v.updatetime}}
@@ -119,8 +119,8 @@
                                                 data-target="#base">
                                                 <!--data-toggle="modal" data-target="#base"-->删除
                                             </button>
-                                            <button onclick="edit('{{$v.id}}','{{$v.name}}','{{$v.leader}}','{{$v.leaderphone}}')" type="button" id="delbtn" class="btn btn-success"
-                                                data-toggle="modal" data-target="#AddEdit">
+                                            <button onclick="edit('{{$v.id}}','{{$v.name}}','{{$v.leader}}','{{$v.leaderphone}}','{{$v.province}}','{{$v.city}}','{{$v.county}}')"
+                                                type="button" id="delbtn" class="btn btn-success" data-toggle="modal" data-target="#AddEdit">
                                                 编辑
                                             </button>
                                         </td>
@@ -156,21 +156,25 @@
     <!--end::Page Resources -->
     <script type="text/javascript">
         $(document).ready(function () {
+            showProv()
             $("#deleteit").click(function () {
                 $("#base").removeClass("show")
                 $(".modal-backdrop").removeClass("show")
             })
-            deleteinfo = function (id,name) {
+            deleteinfo = function (id, name) {
                 $("#ModalTitle").text("删除记录")
                 $("#modalContent").text("你确定要删除 店铺 - " + name + "  吗?")
                 $("#deleteit").attr("href", "/delvendor?id=" + id)
             }
-            edit = function (id, names,leader,leaderphone) {
+            edit = function (id, names, leader, leaderphone, prov, city, country) {
                 $("#ModalAddMenuTitle").text("编辑记录")
                 $("#handelAction").attr("action", "/editvendor?id=" + id)
                 $("#name").attr("value", names)
                 $("#leader").attr("value", leader)
                 $("#leaderphone").attr("value", leaderphone)
+                $("#prov").val("")
+                $("#city").val("")
+                $("#country").val("")
             }
             add = function () {
                 $("#ModalAddMenuTitle").text("新增记录")
@@ -178,9 +182,15 @@
                 $("#name").attr("value", "")
                 $("#leader").attr("value", "")
                 $("#leaderphone").attr("value", "")
+                $("#prov").val("")
+                $("#city").val("")
+                $("#country").val("")
             }
         })
     </script>
+    <script src="assets/app/js/address/city.js" type="text/javascript"></script>
+    <script src="assets/app/js/address/method01.js" type="text/javascript"></script>
 </body>
 <!-- end::Body -->
+
 </html>

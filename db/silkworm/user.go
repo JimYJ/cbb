@@ -34,7 +34,7 @@ func UserTreeUpgrade(id, treelevel, loginip, nowTime string) (int64, error) {
 // GetUser 获取用户
 func getUser() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user ORDER BY id desc", 1)
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user ORDER BY id desc")
 }
 
 // GetUser 获取用户
@@ -109,7 +109,7 @@ func UpdateUserAnswer(answers, nowDate, loginip, nowTime, openid string) (int64,
 // GetUID 获取用户ID
 func GetUID(openid string) (map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetRow(mysql.Statement, "select id,name from user where openid = ?", openid)
+	return mysqlConn.GetRow(mysql.Statement, "select id,name,vid from user where openid = ?", openid)
 }
 
 // GetWaterFertilizer 获取浇水施肥数量
@@ -147,4 +147,10 @@ func GetSignedDays(openid string) (map[string]string, error) {
 func Signed(openid, signdate, lastsigndate, loginip, logintime, updatetime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.Update(mysql.Statement, "update user set signdate = ?,lastsigndate = ?,loginip = ?,logintime = ?,updatetime = ? where openid = ?", signdate, lastsigndate, loginip, logintime, updatetime, openid)
+}
+
+// BillBoardByFriend 好友排行榜
+func BillBoardByFriend(vid string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,treelevel,level from user where vid = ? ORDER BY level desc", vid)
 }

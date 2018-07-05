@@ -5,7 +5,9 @@ import (
 	"canbaobao/db/silkworm"
 	"canbaobao/db/system"
 	"canbaobao/route/middleware"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/tidwall/gjson"
 	"log"
 	"strconv"
 	"time"
@@ -16,6 +18,12 @@ func Vendor(c *gin.Context) {
 	// log.Println(id)
 	list, _ := silkworm.GetVendor()
 	title, content := common.GetAlertMsg(c.Query("t"), c.Query("c"))
+	for i := 0; i < len(list); i++ {
+		province := gjson.Get(common.CityJSON, fmt.Sprintf("%s.name", list[i]["province"]))
+		city := gjson.Get(common.CityJSON, fmt.Sprintf("%s.city.%s.name", list[i]["province"], list[i]["city"]))
+		county := gjson.Get(common.CityJSON, fmt.Sprintf("%s.city.%s.districtAndCounty.%s", list[i]["province"], list[i]["city"], list[i]["county"]))
+		list[i]["area"] = fmt.Sprintf("%s%s%s", province.String(), city.String(), county.String())
+	}
 	c.HTML(200, "vendor.html", gin.H{
 		"menu":         system.GetMenu(),
 		"list":         list,
@@ -54,7 +62,10 @@ func handelVendor(c *gin.Context, isEdit bool) {
 	name := c.PostForm("names")
 	leader := c.PostForm("leader")
 	leaderphone := c.PostForm("leaderphone")
-	if name == "" || leader == "" || leaderphone == "" {
+	province := c.PostForm("province")
+	city := c.PostForm("city")
+	county := c.PostForm("county")
+	if name == "" || leader == "" || leaderphone == "" || province == "" || city == "" || county == "" {
 		middleware.RedirectErr("vendor", common.AlertError, common.AlertParamsError, c)
 		return
 	}
@@ -66,7 +77,7 @@ func handelVendor(c *gin.Context, isEdit bool) {
 			middleware.RedirectErr("vendor", common.AlertError, common.AlertParamsError, c)
 			return
 		}
-		_, err := silkworm.EditVendor(name, leader, leaderphone, nowTime, id)
+		_, err := silkworm.EditVendor(name, leader, leaderphone, nowTime, id, province, city, county)
 		if err != nil {
 			log.Println(err)
 			middleware.RedirectErr("vendor", common.AlertFail, common.AlertSaveFail, c)
@@ -75,7 +86,7 @@ func handelVendor(c *gin.Context, isEdit bool) {
 		c.Redirect(302, "/vendor")
 		return
 	}
-	_, err := silkworm.AddVendor(name, leader, leaderphone, nowTime)
+	_, err := silkworm.AddVendor(name, leader, leaderphone, nowTime, province, city, county)
 	if err != nil {
 		log.Println("add vendor fail:", err)
 		middleware.RedirectErr("vendor", common.AlertFail, common.AlertSaveFail, c)

@@ -68,6 +68,9 @@
                                         <th title="level">
                                             等级
                                         </th>
+                                        <th title="exp">
+                                            升级所需经验
+                                        </th>
                                         <th title="redeemitem">
                                             首次升级兑换奖品
                                         </th>
@@ -92,13 +95,17 @@
                                             {{$v.level}}
                                         </td>
                                         <td>
+                                            {{$v.exp}}
+                                        </td>
+                                        <td>
                                             {{$v.redeemitem}}
                                         </td>
                                         <td>
                                             {{$v.updatetime}}
                                         </td>
                                         <td>
-                                            <button onclick="edit('{{$v.id}}','{{$v.redeemitem}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal" data-target="#AddMenu">
+                                            <button onclick="edit('{{$v.id}}','{{$v.redeemitem}}','{{$v.exp}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal"
+                                                data-target="#AddMenu">
                                                 编辑
                                             </button>
                                         </td>
@@ -134,10 +141,11 @@
     <!--end::Page Resources -->
     <script type="text/javascript">
         $(document).ready(function () {
-            edit = function (id, redeemitem) {
+            edit = function (id, redeemitem,exp) {
                 $("#ModalAddMenuTitle").text("编辑记录")
                 $("#handelAction").attr("action", "/editlevel?id=" + id)
                 $("#redeemitem").attr("value", redeemitem)
+                $("#exp").attr("value",exp)
             }
         })
     </script>

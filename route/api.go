@@ -61,6 +61,8 @@ func API() {
 	api.POST("/allowpair", silkworm.AllowPair)
 	// 拒绝蝴蝶配对申请
 	api.POST("/rejectpair", silkworm.RejectPair)
+	// 好友排行榜
+	api.POST("/friendboard", silkworm.BillBoardByFriend)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
 	router.Run(":80")
 }

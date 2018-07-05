@@ -222,6 +222,10 @@ func calcSignedDays(lastSignedDate, signDate string) time.Duration {
 // UserSigned 每日签到
 func UserSigned(c *gin.Context) {
 	openid := c.PostForm("openid")
+	if openid == "" {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
 	lastSignedDate, signDate, err := getUserSignDate(c)
 	if err != nil {
 		return
@@ -319,4 +323,25 @@ func handelSignAward(openid, nowTime string, isDay bool, signedDays int64) {
 	}
 	moreInfo := fmt.Sprintf("%d天", signedDays)
 	AddItemToRucksack(silkworm.ActiveSign, openid, itemid, nowTime, moreInfo, itemInfo)
+}
+
+// BillBoardByFriend 好友排行榜
+func BillBoardByFriend(c *gin.Context) {
+	openid := c.PostForm("openid")
+	if openid == "" {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	uinfo, _ := silkworm.GetUID(openid)
+	vid := uinfo["vid"]
+	list, err := silkworm.BillBoardByFriend(vid)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"list": list,
+	})
 }

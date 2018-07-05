@@ -71,7 +71,7 @@
                                 <thead>
                                     <tr>
                                         <th title="id">
-                                            ID
+                                            图片
                                         </th>
                                         <th title="name">
                                             店铺名称
@@ -94,16 +94,16 @@
                                     {{range $v:= .list}}
                                     <tr>
                                         <td>
-                                            {{$v.id}}
+                                            <img src="{{$v.bigimg}}" style="max-height: 100px;max-width: 150;">
                                         </td>
                                         <td>
                                             {{$v.name}}
                                         </td>
                                         <td>
-                                             {{if ne $v.redeems ""}}
-                                            <a href="/goodsredeem?gid={{$v.id}}">{{$v.redeems}}</a> 
+                                            {{if ne $v.redeems ""}}
+                                            <a href="/goodsredeem?gid={{$v.id}}">{{$v.redeems}}</a>
                                             {{else}}
-                                            <a href="/goodsredeem?gid={{$v.id}}">新增兑换条件</a> 
+                                            <a href="/goodsredeem?gid={{$v.id}}">新增兑换条件</a>
                                             {{end}}
                                         </td>
                                         <td>
@@ -117,8 +117,7 @@
                                                 data-target="#base">
                                                 <!--data-toggle="modal" data-target="#base"-->删除
                                             </button>
-                                            <button onclick="edit('{{$v.id}}','{{$v.name}}')" type="button" id="delbtn" class="btn btn-success"
-                                                data-toggle="modal" data-target="#AddEdit">
+                                            <button onclick="edit('{{$v.id}}','{{$v.name}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal" data-target="#AddEdit">
                                                 编辑
                                             </button>
                                         </td>
@@ -186,6 +185,7 @@
                     url: "/goodscontent?id=" + id,
                     success: function (rs) {
                         editor.txt.html(rs.content)
+                        content.val(rs.content)
                     }
                 })
             }

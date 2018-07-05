@@ -16,6 +16,12 @@
             <form method="POST" id="handelAction" action="/editlevel">
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="exp" class="form-control-label">
+                            升级经验值:
+                        </label>
+                        <input type="number" class="form-control" placeholder="升级经验值" id="exp" name="exp">
+                    </div>
+                    <div class="form-group">
                         <label for="redeemitem" class="form-control-label">
                             首次升级可兑换物品:
                         </label>
@@ -27,7 +33,7 @@
                         取消
                     </button>
                     <input value="确定" type="submit" class="btn btn-primary">
-                    </input >
+                    </input>
                 </div>
             </form>
         </div>
