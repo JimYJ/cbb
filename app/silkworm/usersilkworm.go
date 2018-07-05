@@ -219,6 +219,10 @@ func ApplyPair(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
+	if pairid == id || uid == pairuid {
+		middleware.RespondErr(402, common.Err402CannotPairSelf, c)
+		return
+	}
 	hatch, pair1, _ := silkworm.CheckPairCondition(id)
 	pairhatch, pair2, _ := silkworm.CheckPairCondition(pairid)
 	if hatch == "" || pair1 == "" || pairhatch == "" || pair2 == "" {

@@ -63,6 +63,8 @@ var (
 	Err402UserItemNoExist = "item is no exist!"
 	//Err402UserIsBind 用户已绑定店铺
 	Err402UserIsBind = "User is Bind Vendor!"
+	//Err402CannotPairSelf 不允许和自己配对
+	Err402CannotPairSelf = "cannot pair self!"
 	//Err403Unreg 手机号未注册
 	Err403Unreg = "Phone is unregistered!"
 	//Err406Unexpected 手机号未注册
