@@ -94,3 +94,23 @@ func handelVendor(c *gin.Context, isEdit bool) {
 	}
 	c.Redirect(302, "/vendor")
 }
+
+// VendorByArea 区域筛选店铺
+func VendorByArea(c *gin.Context) {
+	province := c.PostForm("province")
+	city := c.PostForm("city")
+	county := c.PostForm("county")
+	if province == "" || city == "" || county == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	list, err := silkworm.GetVendorByArea(province, city, county)
+	if err != nil {
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"list": list,
+	})
+}

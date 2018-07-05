@@ -2,6 +2,7 @@ package silkworm
 
 import (
 	"canbaobao/common"
+	"canbaobao/db"
 	"canbaobao/db/silkworm"
 	"canbaobao/db/system"
 	"canbaobao/route/middleware"
@@ -325,23 +326,54 @@ func handelSignAward(openid, nowTime string, isDay bool, signedDays int64) {
 	AddItemToRucksack(silkworm.ActiveSign, openid, itemid, nowTime, moreInfo, itemInfo)
 }
 
-// BillBoardByFriend 好友排行榜
-func BillBoardByFriend(c *gin.Context) {
-	openid := c.PostForm("openid")
-	if openid == "" {
-		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
-		return
+// BillBoard 排行榜
+func BillBoard(c *gin.Context) {
+	pageSize := c.Query("pageSize")
+	pageNo := c.Query("pageNo")
+	totalCount, err := silkworm.GetUserCount()
+	if err != nil {
+		log.Println(err)
 	}
-	uinfo, _ := silkworm.GetUID(openid)
-	vid := uinfo["vid"]
-	list, err := silkworm.BillBoardByFriend(vid)
+	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
+	list, err := silkworm.BillBoard(paginaSQL)
 	if err != nil {
 		log.Println(err)
 		middleware.RespondErr(500, common.Err500DBrequest, c)
 		return
 	}
 	c.JSON(200, gin.H{
-		"msg":  "success",
-		"list": list,
+		"msg":       "success",
+		"PageTotal": PageTotal,
+		"pageSize":  pageSize,
+		"pageNo":    pageNo,
+		"list":      list,
 	})
+}
+
+// BindVendor 用户绑定店铺
+func BindVendor(c *gin.Context) {
+	openid := c.PostForm("openid")
+	vid := c.PostForm("vid")
+	if openid == "" || vid == "" {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	uinfo, err := silkworm.GetUID(openid)
+	if err != nil {
+		log.Println("openid is error")
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	if uinfo["vid"] != "" {
+		middleware.RespondErr(402, common.Err402UserIsBind, c)
+		return
+	}
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	ip := c.ClientIP()
+	_, err = silkworm.UserBindVendor(uinfo["id"], vid, ip, nowTime)
+	if err != nil {
+		middleware.RespondErr(500, common.Err500DBSave, c)
+		return
+	}
+	responSuccess(c)
 }

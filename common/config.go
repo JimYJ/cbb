@@ -61,8 +61,8 @@ var (
 	Err402UserNotBind = "User Is Not Bind Vendor!"
 	//Err402UserItemNoExist 物品不存在背包中
 	Err402UserItemNoExist = "item is no exist!"
-	//Err403PhoneIsBind 手机号已绑定
-	Err403PhoneIsBind = "Phone is bind!"
+	//Err402UserIsBind 用户已绑定店铺
+	Err402UserIsBind = "User is Bind Vendor!"
 	//Err403Unreg 手机号未注册
 	Err403Unreg = "Phone is unregistered!"
 	//Err406Unexpected 手机号未注册

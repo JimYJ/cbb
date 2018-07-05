@@ -91,7 +91,7 @@ func GetUserName(id string) (string, error) {
 func GetFriendList(openid string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	vid, _ := mysqlConn.GetVal(mysql.Statement, "select vid from user where openid = ?", openid)
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,level from user where vid = ? and openid != ?", vid, openid)
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,level from user where vid = ? and openid != ? order by level desc", vid, openid)
 }
 
 // GetUserAnswers 获取用户当日回答次数
@@ -149,8 +149,15 @@ func Signed(openid, signdate, lastsigndate, loginip, logintime, updatetime strin
 	return mysqlConn.Update(mysql.Statement, "update user set signdate = ?,lastsigndate = ?,loginip = ?,logintime = ?,updatetime = ? where openid = ?", signdate, lastsigndate, loginip, logintime, updatetime, openid)
 }
 
-// BillBoardByFriend 好友排行榜
-func BillBoardByFriend(vid string) ([]map[string]string, error) {
+// BillBoard 全国排行榜
+func BillBoard(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,treelevel,level from user where vid = ? ORDER BY level desc", vid)
+	sql := fmt.Sprintf("select id,name,avatar,treelevel,level from user ORDER BY level desc %s", paginaSQL)
+	return mysqlConn.GetResults(mysql.Statement, sql)
+}
+
+// GetUserCount 获取用户总数
+func GetUserCount() (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select count(*) from user")
 }

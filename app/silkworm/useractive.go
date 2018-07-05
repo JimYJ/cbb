@@ -32,6 +32,8 @@ func UserActive(c *gin.Context) {
 	list, err := silkworm.GetUserActive(openid, vid, paginaSQL)
 	if err != nil {
 		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
 	}
 	c.JSON(200, gin.H{
 		"msg":       "success",
