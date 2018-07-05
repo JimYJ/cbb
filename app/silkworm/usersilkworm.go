@@ -56,7 +56,7 @@ func hatch(c *gin.Context, isSpecial bool) {
 	uid := uinfo["id"]
 	uname := uinfo["name"]
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
-	enablehous, _ := time.ParseDuration("12h")
+	enablehous, _ := time.ParseDuration("24h")
 	enabletime := time.Now().Local().Add(enablehous).Unix()
 	rsults := silkworm.Hatch(uid, rucksackid, swtype, enabletime)
 	if rsults {
@@ -253,7 +253,7 @@ func RejectPair(c *gin.Context) {
 	handlePair(c, true)
 }
 
-// RejectPair 拒绝配对
+// 处理配对
 func handlePair(c *gin.Context, isReject bool) {
 	id := c.PostForm("id")
 	pairid := c.PostForm("pairid")
@@ -279,7 +279,7 @@ func handlePair(c *gin.Context, isReject bool) {
 	if isReject {
 		rs = silkworm.EndPair(id, pairid)
 	} else {
-		pairhous, _ := time.ParseDuration("12h")
+		pairhous, _ := time.ParseDuration("24h")
 		pairtime := time.Now().Local().Add(pairhous).Unix()
 		rs = silkworm.AllowPair(id, pairid, pairtime)
 	}
