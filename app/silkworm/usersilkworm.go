@@ -443,14 +443,14 @@ func Feed(c *gin.Context) {
 	}
 	silkwormLevel, _ := silkworm.LevelList()
 	for i := 0; i < 10; i++ {
-		l := level
+		newlevel := level
 		nextLevelExp, _ := strconv.Atoi(silkwormLevel[level]["exp"])
 		if itemExp+silkwormExp < nextLevelExp {
 			// 增加经验值
 			break
 		} else {
 			// 发送兑换券
-			l++
+			newlevel++
 		}
 	}
 }
