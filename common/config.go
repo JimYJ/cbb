@@ -35,7 +35,7 @@ var (
 
 // 错误信息
 var (
-	// Err201Limit 回答问题数达到上限
+	// Err201Limit 操作数达到上限
 	Err201Limit = "The upper limit has been reached today"
 	// Err202Limit 浇水施肥达到本级别上限
 	Err202Limit = "The upper limit has been reached this level"
@@ -65,9 +65,17 @@ var (
 	Err402UserIsBind = "User is Bind Vendor!"
 	//Err402CannotPairSelf 不允许和自己配对
 	Err402CannotPairSelf = "cannot pair self!"
-	//Err403Unreg 手机号未注册
-	Err403Unreg = "Phone is unregistered!"
-	//Err406Unexpected 手机号未注册
+	//Err402Untake 未拾取物品不能使用
+	Err402NotTaken = "cannot use not taken item!"
+	//Err402OtherUserItem 不能使用他人物品
+	Err402OtherUserItem = "cannot use others user item!"
+	//Err402OtherUserSW 不能喂养他人蚕仔
+	Err402OtherUserSW = "cannot feed others user silkworm!"
+	//Err402ItemCannotFeed 该物品不能用来喂养
+	Err402ItemCannotFeed = "this item cannot use for feed!"
+	//Err402CannotFeedButterfly 不能喂养蝴蝶
+	Err402CannotFeedButterfly = "feed to silkworm only!"
+	//Err406Unexpected 异常错误
 	Err406Unexpected = "request Unexpected!"
 	//Err429Frequent 请求过于频繁
 	Err429Frequent = "Request too Frequent!"
@@ -77,8 +85,6 @@ var (
 	Err500DBSave = "Database save fail!"
 	//Err500CannotGetUID 数据库请求错误
 	Err500CannotGetUID = "Cannot get UID by token!"
-	//Err502SMS 短信发送失败，检查短信平台账户密码
-	Err502SMS = "Sms send fail!"
 	//Err502Wechat 微信接口请求错误
 	Err502Wechat = "request wechat api fail!"
 )

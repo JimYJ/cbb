@@ -97,7 +97,7 @@ func GetUserLeafUntakeByID(id string) ([]map[string]string, error) {
 	return mysqlConn.GetResults(mysql.Statement, "select id from rucksack where uid = ? and take = ? and itemid = ? order by id", id, 0, 1)
 }
 
-// TakeLeafByID 收取桑叶
+// TakeLeafByID 偷桑叶
 func TakeLeafByID(openid, loseUID, id, nowTime string) int {
 	mysqlConn := common.GetMysqlConn()
 	uinfo, err := GetUID(openid)
@@ -121,4 +121,10 @@ func TakeLeafByID(openid, loseUID, id, nowTime string) int {
 	}
 	mysqlConn.TxCommit()
 	return 1
+}
+
+// RucksackItemInfo 获取背包物品信息
+func RucksackItemInfo(id string) (map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetRow(mysql.Statement, "select rucksack id,uid,take,itemid where id = ?", id)
 }

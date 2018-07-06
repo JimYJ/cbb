@@ -1,5 +1,6 @@
 package common
 
+// CityJSON 省市县列表
 var CityJSON = `[{
 	"name": "北京市",
 	"city": [{

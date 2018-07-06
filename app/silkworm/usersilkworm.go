@@ -11,6 +11,15 @@ import (
 	"time"
 )
 
+// 喂养物品类型
+const (
+	null = iota
+	Leaf
+	SPowerPack
+	LPowerPack
+	MPowerPack
+)
+
 // HatchForNormal 普通蚕仔孵化
 func HatchForNormal(c *gin.Context) {
 	hatch(c, false)
@@ -203,6 +212,22 @@ func endPairRuck(uid, pairuid, nowTime string) {
 	}
 }
 
+//NewUserRuck 新用户注册背包和动态
+func NewUserRuck(uid, nowTime string) {
+	_, err := silkworm.AddSilkwormRucksack("6", uid, "0", nowTime, 0)
+	if err != nil {
+		log.Println("Add Item to Rucksack Fail", err)
+	}
+	uinfo, _ := silkworm.GetSingleUserByID(uid)
+	uname := uinfo["name"]
+	itemInfo, _ := silkworm.ItemInfo("5")
+	itemName := itemInfo["name"]
+	_, err = silkworm.SaveUserActive(silkworm.ActiveNewUser, uname, uid, itemName, "5", nowTime, "")
+	if err != nil {
+		log.Println("Save User Active Fail", err)
+	}
+}
+
 // ApplyPair 申请配对
 func ApplyPair(c *gin.Context) {
 	openid := c.PostForm("openid")
@@ -342,4 +367,119 @@ func getUserInfo(uid, pairuid string) (string, string) {
 	pairuinfo, _ := silkworm.GetSingleUserByID(pairuid)
 	pairuname := pairuinfo["name"]
 	return uname, pairuname
+}
+
+// Feed 喂食
+func Feed(c *gin.Context) {
+	openid := c.PostForm("openid")
+	rucksackid := c.PostForm("rucksackid")
+	id := c.PostForm("id")
+	if openid == "" || rucksackid == "" || id == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	uinfo, err := silkworm.GetUID(openid)
+	rucksackItemInfo, err3 := silkworm.RucksackItemInfo(rucksackid)
+	userSilkwormInfo, err2 := silkworm.GetSingleUserSWInfo(id)
+	if err != nil || err3 != nil || err2 != nil {
+		log.Println(err, err2, err3)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	if uinfo == nil || rucksackItemInfo == nil {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	itemid := rucksackItemInfo["itemid"]
+	take := rucksackItemInfo["take"]
+	if take == "0" {
+		middleware.RespondErr(402, common.Err402NotTaken, c)
+		return
+	}
+	iteminfo, err := silkworm.ItemInfo(itemid)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	if iteminfo == nil {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	uid := uinfo["id"]
+	if uid != rucksackItemInfo["uid"] {
+		middleware.RespondErr(402, common.Err402OtherUserItem, c)
+		return
+	}
+	if uid != userSilkwormInfo["uid"] {
+		middleware.RespondErr(402, common.Err402OtherUserSW, c)
+		return
+	}
+	itemExp, _ := strconv.Atoi(iteminfo["exp"])
+	limitday, _ := strconv.Atoi(iteminfo["limitday"])
+	itemTypes := iteminfo["types"]
+	hatch := userSilkwormInfo["hatch"]
+	level, _ := strconv.Atoi(userSilkwormInfo["level"])
+	silkwormExp, _ := strconv.Atoi(userSilkwormInfo["exp"])
+	// swtype := userSilkwormInfo["swtype"]
+	// nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	if itemTypes != "1" && itemTypes != "0" {
+		middleware.RespondErr(402, common.Err402ItemCannotFeed, c)
+		return
+	}
+	if hatch != "0" {
+		middleware.RespondErr(402, common.Err402CannotFeedButterfly, c)
+		return
+	}
+	rs := checkItemDayLimit(itemid, uid, limitday)
+	if rs == -1 {
+		middleware.RespondErr(201, common.Err201Limit, c)
+		return
+	}
+	if level >= 10 {
+		log.Println("usersilkworm level err!", level)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	silkwormLevel, _ := silkworm.LevelList()
+	for i := 0; i < 10; i++ {
+		l := level
+		nextLevelExp, _ := strconv.Atoi(silkwormLevel[level]["exp"])
+		if itemExp+silkwormExp < nextLevelExp {
+			// 增加经验值
+			break
+		} else {
+			// 发送兑换券
+			l++
+		}
+	}
+}
+
+func checkItemDayLimit(itemid, uid string, limitday int) int {
+	itemID, err := strconv.Atoi(itemid)
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+	feedInfo, err := silkworm.GetUserFeeds(uid)
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+	var feedTimes, feedDate string
+	if itemID == Leaf {
+		feedTimes = feedInfo["leafusetoday"]
+		feedDate = feedInfo["leafday"]
+	} else if itemID == SPowerPack {
+		feedTimes = feedInfo["sppusetoday"]
+		feedDate = feedInfo["sppday"]
+	} else if itemID == LPowerPack {
+		feedTimes = feedInfo["mppusetoday"]
+		feedDate = feedInfo["mppday"]
+	} else if itemID == MPowerPack {
+		feedTimes = feedInfo["lppusetoday"]
+		feedDate = feedInfo["lppday"]
+	}
+	nowDate := time.Now().Local().Format("2006-01-02")
+	return common.CheckLimit(feedTimes, feedDate, nowDate, limitday)
 }

@@ -26,6 +26,7 @@ const (
 	ActivePairEndII
 	ActivePairAllowII
 	ActivePairRejectII
+	ActiveNewUser
 )
 
 // UserActiveList
@@ -49,6 +50,7 @@ var (
 		"pairendii",
 		"pairallowii",
 		"pairrejectii",
+		"newuser",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
@@ -69,6 +71,7 @@ var (
 		"与 %s 的蝴蝶配对结束。",
 		"的蝴蝶配对申请被 %s 通过。",
 		"的蝴蝶配对申请被 %s 拒绝。",
+		"成为了新用户，获得了物品:",
 	}
 )
 

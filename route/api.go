@@ -67,6 +67,8 @@ func API() {
 	api.POST("/vendor", silkworm.VendorByArea)
 	// 绑定店铺
 	api.POST("/bindvendor", silkworm.BindVendor)
+	// 检测用户是否看过引导页
+	api.POST("/intropage", silkworm.CheckUserIntroPage)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
 	router.Run(":80")
 }

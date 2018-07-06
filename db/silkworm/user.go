@@ -161,3 +161,21 @@ func GetUserCount() (string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetVal(mysql.Statement, "select count(*) from user")
 }
+
+// GetUserFeeds 获取用户当日喂养次数
+func GetUserFeeds(id string) (map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetRow(mysql.Statement, "select leafusetoday,sppusetoday,mppusetoday,lppusetoday,leafday,sppday,mppday,lppday from user where id = ?", id)
+}
+
+// GetIntroPageRecord 获取用户是否看过引导页
+func GetIntroPageRecord(openid string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select intropage from user where openid = ?", openid)
+}
+
+// UpdateIntroPageRecord 更新用户是否看过引导页
+func UpdateIntroPageRecord(openid string) (int64, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.Update(mysql.Statement, "update user set intropage = ? where openid = ?", 1, openid)
+}

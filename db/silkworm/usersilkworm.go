@@ -114,3 +114,15 @@ func CheckPairCondition(userswid string) (string, string, string) {
 	}
 	return info["hatch"], info["pair"], info["uid"]
 }
+
+// GetSingleUserSWInfo 获取单只蚕宝宝的信息
+func GetSingleUserSWInfo(id string) (map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetRow(mysql.Statement, "select usersw id,uid,hatch,level,exp,swtype where id = ?", id)
+}
+
+// UpExp 增加经验值
+func UpExp(newExp, id string) (int64, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.Update(mysql.Statement, "update usersw exp = ? where id = ?", newExp, id)
+}

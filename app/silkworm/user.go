@@ -377,3 +377,32 @@ func BindVendor(c *gin.Context) {
 	}
 	responSuccess(c)
 }
+
+// CheckUserIntroPage 确认用户是否看过引导页
+func CheckUserIntroPage(c *gin.Context) {
+	openid := c.PostForm("openid")
+	if openid == "" {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	rs, err := silkworm.GetIntroPageRecord(openid)
+	if err != nil {
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	if rs == "0" {
+		_, err = silkworm.UpdateIntroPageRecord(openid)
+		if err != nil {
+			log.Println(err)
+		}
+		c.JSON(200, gin.H{
+			"msg": "success",
+			"rs":  false,
+		})
+	} else {
+		c.JSON(200, gin.H{
+			"msg": "success",
+			"rs":  true,
+		})
+	}
+}
