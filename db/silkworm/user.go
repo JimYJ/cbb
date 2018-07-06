@@ -4,6 +4,7 @@ import (
 	"canbaobao/common"
 	"fmt"
 	"github.com/JimYJ/easysql/mysql"
+	"strconv"
 )
 
 // AddUser 新增未激活用户
@@ -184,4 +185,12 @@ func GetIntroPageRecord(openid string) (string, error) {
 func UpdateIntroPageRecord(openid string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.Update(mysql.Statement, "update user set intropage = ? where openid = ?", 1, openid)
+}
+
+// CheckUserExist 判断用户是否存在
+func CheckUserExist(openid string) (int, error) {
+	mysqlConn := common.GetMysqlConn()
+	rs, _ := mysqlConn.GetVal(mysql.Statement, "select count(*) from user where openid = ?", openid)
+	count, err := strconv.Atoi(rs)
+	return count, err
 }

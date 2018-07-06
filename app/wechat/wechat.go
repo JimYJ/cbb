@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -40,13 +39,16 @@ func GetUserInfo(c *gin.Context) {
 	}
 	ip := c.ClientIP()
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
-	uid, err := silkworm.AddUser(avatar, name, ip, openid, nowTime)
-	if err != nil {
-		log.Println(err)
-		middleware.RespondErr(500, common.Err500DBSave, c)
-		return
+	rs, _ := silkworm.CheckUserExist(openid)
+	if rs < 1 {
+		_, err = silkworm.AddUser(avatar, name, ip, openid, nowTime)
+		if err != nil {
+			log.Println(err)
+			middleware.RespondErr(500, common.Err500DBSave, c)
+			return
+		}
 	}
-	sw.NewUserRuck(strconv.FormatInt(uid, 10), nowTime)
+	go sw.NewUserRuck(openid, nowTime)
 	url := fmt.Sprintf("%s?openid=%s", returnURL, openid)
 	c.Redirect(302, url)
 }

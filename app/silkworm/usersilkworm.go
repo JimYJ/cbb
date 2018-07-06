@@ -229,12 +229,13 @@ func endPairRuck(uid, pairuid, nowTime string) {
 }
 
 //NewUserRuck 新用户注册背包和动态
-func NewUserRuck(uid, nowTime string) {
-	_, err := silkworm.AddSilkwormRucksack("6", uid, "0", nowTime, 0)
+func NewUserRuck(openid, nowTime string) {
+	uinfo, _ := silkworm.GetUID(openid)
+	uid := uinfo["id"]
+	_, err := silkworm.AddSilkwormRucksack("5", uid, "0", nowTime, 0)
 	if err != nil {
 		log.Println("Add Item to Rucksack Fail", err)
 	}
-	uinfo, _ := silkworm.GetSingleUserByID(uid)
 	uname := uinfo["name"]
 	itemInfo, _ := silkworm.ItemInfo("5")
 	itemName := itemInfo["name"]

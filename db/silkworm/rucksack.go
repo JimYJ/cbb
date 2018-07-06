@@ -16,8 +16,9 @@ const (
 // AddRucksack 新增物品到背包
 func AddRucksack(itemid, uid, nowTime string, swtype, take, itemtype int) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.Insert(mysql.Statement, "insert into rucksack set itemid = ?,uid = ?,itemtype = ?,swtype = ?,updatetime = ?,createtime = ?,take = ?",
+	rs, err := mysqlConn.Insert(mysql.Statement, "insert into rucksack set itemid = ?,uid = ?,itemtype = ?,swtype = ?,updatetime = ?,createtime = ?,take = ?",
 		itemid, uid, itemtype, swtype, nowTime, nowTime, take)
+	return rs, err
 }
 
 // AddItemRucksack 普通物品进入背包
