@@ -118,11 +118,36 @@ func CheckPairCondition(userswid string) (string, string, string) {
 // GetSingleUserSWInfo 获取单只蚕宝宝的信息
 func GetSingleUserSWInfo(id string) (map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetRow(mysql.Statement, "select usersw id,uid,hatch,level,exp,swtype where id = ?", id)
+	return mysqlConn.GetRow(mysql.Statement, "select id,uid,hatch,level,exp,swtype,enable from usersw where id = ?", id)
 }
 
 // UpExp 增加经验值
-func UpExp(newExp, id string) (int64, error) {
+func UpExp(newExp, level, name, id, uid, rucksackid string) bool {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.Update(mysql.Statement, "update usersw exp = ? where id = ?", newExp, id)
+	mysqlConn.TxBegin()
+	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
+	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set exp = ?,level = ?,name = ? where id = ?", newExp, level, name, id)
+	if err != nil || err2 != nil {
+		log.Println(err, err2)
+		mysqlConn.TxRollback()
+		return false
+	}
+	mysqlConn.TxCommit()
+	return true
+}
+
+// BeButterfly 化蝶
+func BeButterfly(newExp, name, swid, id, uid, rucksackid, level, loginip, nowTime string) bool {
+	mysqlConn := common.GetMysqlConn()
+	mysqlConn.TxBegin()
+	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
+	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set exp = ?,level = ?,hatch = ?, name = ?,swid = ? where id = ?", newExp, 10, 1, name, swid, id)
+	_, err3 := mysqlConn.TxUpdate(mysql.Statement, "update user set level = ?,loginip = ?,logintime = ?,updatetime = ? where id = ?", level, loginip, nowTime, nowTime, uid)
+	if err != nil || err2 != nil || err3 != nil {
+		log.Println(err, err2, err3)
+		mysqlConn.TxRollback()
+		return false
+	}
+	mysqlConn.TxCommit()
+	return true
 }

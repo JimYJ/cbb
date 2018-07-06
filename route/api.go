@@ -69,6 +69,8 @@ func API() {
 	api.POST("/bindvendor", silkworm.BindVendor)
 	// 检测用户是否看过引导页
 	api.POST("/intropage", silkworm.CheckUserIntroPage)
+	// 喂食
+	api.POST("/feed", silkworm.Feed)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
 	router.Run(":80")
 }

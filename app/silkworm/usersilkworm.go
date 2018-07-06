@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"math/rand"
 	"strconv"
 	"time"
 )
@@ -58,7 +59,7 @@ func hatch(c *gin.Context, isSpecial bool) {
 	// log.Println(nums, rucksackid, err)
 	if nums == "0" {
 		log.Println("get rucksackid Fail", err)
-		middleware.RespondErr(402, common.Err402UserItemNoExist, c)
+		middleware.RespondErr(413, common.Err413UserItemNoExist, c)
 		return
 	}
 	uinfo, err := silkworm.GetUID(openid)
@@ -129,8 +130,23 @@ func userSilkwormList(c *gin.Context, uid string) {
 				t, _ := time.ParseDuration(fmt.Sprintf("%ds", enabletime-nowUnix))
 				list[i]["enabletime"] = common.FormatTimeGap(t.String())
 			} else {
+				uinfo, _ := silkworm.GetUinfoByID(uid)
+				uname := uinfo["name"]
+				level, _ := strconv.Atoi(uinfo["level"])
+				vid := uinfo["vid"]
+				if vid == "" {
+					middleware.RespondErr(412, common.Err412UserNotBind, c)
+					return
+				}
 				list[i]["enabletime"] = "0"
 				silkworm.Enable(list[i]["id"])
+				if level < 1 {
+					linfo, _ := silkworm.GetLevel("1")
+					awardItem := linfo["redeemitem"]
+					go createVoucher(awardItem, vid, uid, nowTime, uname, "1")
+				} else {
+					go swUpActive(uname, uid, nowTime, "1")
+				}
 			}
 		}
 		if list[i]["pair"] == "0" {
@@ -245,7 +261,7 @@ func ApplyPair(c *gin.Context) {
 		return
 	}
 	if pairid == id || uid == pairuid {
-		middleware.RespondErr(402, common.Err402CannotPairSelf, c)
+		middleware.RespondErr(415, common.Err415CannotPairSelf, c)
 		return
 	}
 	hatch, pair1, _ := silkworm.CheckPairCondition(id)
@@ -383,7 +399,7 @@ func Feed(c *gin.Context) {
 	userSilkwormInfo, err2 := silkworm.GetSingleUserSWInfo(id)
 	if err != nil || err3 != nil || err2 != nil {
 		log.Println(err, err2, err3)
-		middleware.RespondErr(500, common.Err500DBrequest, c)
+		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
 	if uinfo == nil || rucksackItemInfo == nil {
@@ -393,7 +409,7 @@ func Feed(c *gin.Context) {
 	itemid := rucksackItemInfo["itemid"]
 	take := rucksackItemInfo["take"]
 	if take == "0" {
-		middleware.RespondErr(402, common.Err402NotTaken, c)
+		middleware.RespondErr(416, common.Err416NotTaken, c)
 		return
 	}
 	iteminfo, err := silkworm.ItemInfo(itemid)
@@ -408,27 +424,32 @@ func Feed(c *gin.Context) {
 	}
 	uid := uinfo["id"]
 	if uid != rucksackItemInfo["uid"] {
-		middleware.RespondErr(402, common.Err402OtherUserItem, c)
+		middleware.RespondErr(417, common.Err417OtherUserItem, c)
 		return
 	}
 	if uid != userSilkwormInfo["uid"] {
-		middleware.RespondErr(402, common.Err402OtherUserSW, c)
+		middleware.RespondErr(418, common.Err418OtherUserSW, c)
 		return
 	}
+	userLevel, _ := strconv.Atoi(uinfo["level"])
 	itemExp, _ := strconv.Atoi(iteminfo["exp"])
 	limitday, _ := strconv.Atoi(iteminfo["limitday"])
 	itemTypes := iteminfo["types"]
 	hatch := userSilkwormInfo["hatch"]
+	enable := userSilkwormInfo["enable"]
 	level, _ := strconv.Atoi(userSilkwormInfo["level"])
 	silkwormExp, _ := strconv.Atoi(userSilkwormInfo["exp"])
-	// swtype := userSilkwormInfo["swtype"]
-	// nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	swtype := userSilkwormInfo["swtype"]
 	if itemTypes != "1" && itemTypes != "0" {
-		middleware.RespondErr(402, common.Err402ItemCannotFeed, c)
+		middleware.RespondErr(419, common.Err419ItemCannotFeed, c)
 		return
 	}
 	if hatch != "0" {
-		middleware.RespondErr(402, common.Err402CannotFeedButterfly, c)
+		middleware.RespondErr(420, common.Err420CannotFeedButterfly, c)
+		return
+	}
+	if enable != "1" {
+		middleware.RespondErr(421, common.Err421SilkwormHatching, c)
 		return
 	}
 	rs := checkItemDayLimit(itemid, uid, limitday)
@@ -442,16 +463,70 @@ func Feed(c *gin.Context) {
 		return
 	}
 	silkwormLevel, _ := silkworm.LevelList()
-	for i := 0; i < 10; i++ {
-		newlevel := level
-		nextLevelExp, _ := strconv.Atoi(silkwormLevel[level]["exp"])
+	newlevel := level
+	newUserLevel := userLevel
+	vid := uinfo["vid"]
+	uname := uinfo["name"]
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	for i := 0; i < 11; i++ {
+		nextLevelExp, _ := strconv.Atoi(silkwormLevel[newlevel]["exp"])
 		if itemExp+silkwormExp < nextLevelExp {
 			// 增加经验值
+			rs := silkworm.UpExp(strconv.Itoa(itemExp+silkwormExp), strconv.Itoa(newlevel), silkwormLevel[newlevel-1]["name"], id, uid, rucksackid)
+			if !rs {
+				middleware.RespondErr(500, common.Err500DBSave, c)
+				return
+			}
 			break
 		} else {
-			// 发送兑换券
 			newlevel++
+			if userLevel < 1 {
+				// 发送兑换券
+				if vid == "" {
+					middleware.RespondErr(412, common.Err412UserNotBind, c)
+					return
+				}
+				awardItem := silkwormLevel[newlevel-1]["redeemitem"]
+				go createVoucher(awardItem, vid, uid, nowTime, uname, strconv.Itoa(newlevel))
+			} else {
+				go swUpActive(uname, uid, nowTime, strconv.Itoa(newlevel))
+			}
+			if newlevel >= 10 {
+				//成为蝴蝶,用户等级+1
+				newUserLevel++
+				var randBFid int
+				rand.Seed(time.Now().UnixNano())
+				if swtype == "0" {
+					randBFid = rand.Intn(5) + 1
+				} else {
+					randBFid = rand.Intn(5) + 6
+				}
+				bfname, _ := silkworm.ButterflyName(randBFid)
+				rs := silkworm.BeButterfly(strconv.Itoa(itemExp+silkwormExp), bfname, strconv.Itoa(randBFid), id, uid, rucksackid, strconv.Itoa(newUserLevel), c.ClientIP(), nowTime)
+				if !rs {
+					middleware.RespondErr(500, common.Err500DBSave, c)
+					return
+				}
+				go beButterflyActive(uname, uid, nowTime, strconv.Itoa(newUserLevel))
+				break
+			}
 		}
+	}
+	if newlevel > level && newUserLevel > userLevel {
+		c.JSON(200, gin.H{
+			"msg":          "success",
+			"newlevel":     newlevel,
+			"newUserLevel": newUserLevel,
+		})
+	} else if newlevel > level {
+		c.JSON(200, gin.H{
+			"msg":      "success",
+			"newlevel": newlevel,
+		})
+	} else {
+		c.JSON(200, gin.H{
+			"msg": "success",
+		})
 	}
 }
 
@@ -482,4 +557,32 @@ func checkItemDayLimit(itemid, uid string, limitday int) int {
 	}
 	nowDate := time.Now().Local().Format("2006-01-02")
 	return common.CheckLimit(feedTimes, feedDate, nowDate, limitday)
+}
+
+// createVoucher 生成兑换券及动态
+func createVoucher(awardItem, vid, uid, nowTime, uname, moreInfo string) {
+	_, err := silkworm.AddVoucher(vid, uid, awardItem, nowTime)
+	if err != nil {
+		log.Println("Create Voucher Fail:", err)
+	}
+	_, err = silkworm.SaveUserActive(silkworm.ActiveFirstSWUp, uname, uid, awardItem, "0", nowTime, moreInfo)
+	if err != nil {
+		log.Println("Save User Active Fail:", err)
+	}
+}
+
+// swUpActive 蚕宝宝升级动态
+func swUpActive(uname, uid, nowTime, moreInfo string) {
+	_, err := silkworm.SaveUserActive(silkworm.ActiveSWUp, uname, uid, "", "0", nowTime, moreInfo)
+	if err != nil {
+		log.Println("Save User Active Fail:", err)
+	}
+}
+
+// beButterflyActive 化蝶动态
+func beButterflyActive(uname, uid, nowTime, moreInfo string) {
+	_, err := silkworm.SaveUserActive(silkworm.ActiveBeButterfly, uname, uid, "", "0", nowTime, moreInfo)
+	if err != nil {
+		log.Println("Save User Active Fail:", err)
+	}
 }

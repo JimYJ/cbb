@@ -109,7 +109,13 @@ func UpdateUserAnswer(answers, nowDate, loginip, nowTime, openid string) (int64,
 // GetUID 获取用户ID
 func GetUID(openid string) (map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetRow(mysql.Statement, "select id,name,vid from user where openid = ?", openid)
+	return mysqlConn.GetRow(mysql.Statement, "select id,name,vid,level from user where openid = ?", openid)
+}
+
+// GetUinfoByID 获取用户信息
+func GetUinfoByID(id string) (map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetRow(mysql.Statement, "select id,name,vid,level from user where id = ?", id)
 }
 
 // GetWaterFertilizer 获取浇水施肥数量

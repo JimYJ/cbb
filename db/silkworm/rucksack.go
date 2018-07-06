@@ -126,5 +126,5 @@ func TakeLeafByID(openid, loseUID, id, nowTime string) int {
 // RucksackItemInfo 获取背包物品信息
 func RucksackItemInfo(id string) (map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetRow(mysql.Statement, "select rucksack id,uid,take,itemid where id = ?", id)
+	return mysqlConn.GetRow(mysql.Statement, "select id,uid,take,itemid from rucksack where id = ?", id)
 }

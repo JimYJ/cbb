@@ -365,7 +365,7 @@ func BindVendor(c *gin.Context) {
 		return
 	}
 	if uinfo["vid"] != "" {
-		middleware.RespondErr(402, common.Err402UserIsBind, c)
+		middleware.RespondErr(414, common.Err414UserIsBind, c)
 		return
 	}
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")

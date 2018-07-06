@@ -16,3 +16,9 @@ func EditButterfly(name, nowTime, id string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.Update(mysql.Statement, "update butterfly set name = ?,updatetime = ? where id = ?", name, nowTime, id)
 }
+
+// ButterflyName 获得蝴蝶名称
+func ButterflyName(id int) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select name from butterfly where id = ?", id)
+}

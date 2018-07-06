@@ -21,7 +21,7 @@ func UserActive(c *gin.Context) {
 	vid, err := silkworm.GetUserVid(openid)
 	if err != nil || vid == "" {
 		log.Println("get user vid fail:", err)
-		middleware.RespondErr(402, common.Err402UserNotBind, c)
+		middleware.RespondErr(412, common.Err412UserNotBind, c)
 		return
 	}
 	totalCount, err := silkworm.GetUserActiveCount(vid)

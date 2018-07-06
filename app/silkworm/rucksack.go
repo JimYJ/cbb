@@ -103,7 +103,7 @@ func TakeLeaf(c *gin.Context) {
 		}
 		responSuccess(c)
 	} else {
-		middleware.RespondErr(402, common.Err402UserItemNoExist, c)
+		middleware.RespondErr(413, common.Err413UserItemNoExist, c)
 		return
 	}
 }

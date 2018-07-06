@@ -58,25 +58,27 @@ var (
 	//Err402Param 参数不正确
 	Err402Param = "param is error!"
 	//Err402UserNotBind 用户未绑定
-	Err402UserNotBind = "User Is Not Bind Vendor!"
-	//Err402UserItemNoExist 物品不存在背包中
-	Err402UserItemNoExist = "item is no exist!"
-	//Err402UserIsBind 用户已绑定店铺
-	Err402UserIsBind = "User is Bind Vendor!"
-	//Err402CannotPairSelf 不允许和自己配对
-	Err402CannotPairSelf = "cannot pair self!"
-	//Err402Untake 未拾取物品不能使用
-	Err402NotTaken = "cannot use not taken item!"
-	//Err402OtherUserItem 不能使用他人物品
-	Err402OtherUserItem = "cannot use others user item!"
-	//Err402OtherUserSW 不能喂养他人蚕仔
-	Err402OtherUserSW = "cannot feed others user silkworm!"
-	//Err402ItemCannotFeed 该物品不能用来喂养
-	Err402ItemCannotFeed = "this item cannot use for feed!"
-	//Err402CannotFeedButterfly 不能喂养蝴蝶
-	Err402CannotFeedButterfly = "feed to silkworm only!"
+	Err412UserNotBind = "User Is Not Bind Vendor!"
 	//Err406Unexpected 异常错误
 	Err406Unexpected = "request Unexpected!"
+	//Err413UserItemNoExist 物品不存在背包中
+	Err413UserItemNoExist = "item is no exist!"
+	//Err414UserIsBind 用户已绑定店铺
+	Err414UserIsBind = "User is Bind Vendor!"
+	//Err415CannotPairSelf 不允许和自己配对
+	Err415CannotPairSelf = "cannot pair self!"
+	//Err416NotTaken 未拾取物品不能使用
+	Err416NotTaken = "cannot use not taken item!"
+	//Err417OtherUserItem 不能使用他人物品
+	Err417OtherUserItem = "cannot use others user item!"
+	//Err418OtherUserSW 不能喂养他人蚕仔
+	Err418OtherUserSW = "cannot feed others user silkworm!"
+	//Err419ItemCannotFeed 该物品不能用来喂养
+	Err419ItemCannotFeed = "this item cannot use for feed!"
+	//Err420CannotFeedButterfly 不能喂养蝴蝶
+	Err420CannotFeedButterfly = "feed to silkworm only!"
+	//Err421SilkwormHatching 蚕宝宝还在孵化中，无法喂养
+	Err421SilkwormHatching = "silkworm still hatching, cannot feed it!"
 	//Err429Frequent 请求过于频繁
 	Err429Frequent = "Request too Frequent!"
 	//Err500DBrequest 数据库请求错误

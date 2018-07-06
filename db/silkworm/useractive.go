@@ -27,6 +27,9 @@ const (
 	ActivePairAllowII
 	ActivePairRejectII
 	ActiveNewUser
+	ActiveFirstSWUp
+	ActiveSWUp
+	ActiveBeButterfly
 )
 
 // UserActiveList
@@ -51,10 +54,13 @@ var (
 		"pairallowii",
 		"pairrejectii",
 		"newuser",
+		"firstswup",
+		"swup",
+		"bebutterfly",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
-		"的用户等级升级，获得了物品:",
+		"的用户等级成功升到了 %s 级。",
 		"绑定了店铺.",
 		"获得了兑换券，可兑换物品:",
 		"分享注册成功，获得了物品:",
@@ -72,6 +78,9 @@ var (
 		"的蝴蝶配对申请被 %s 通过。",
 		"的蝴蝶配对申请被 %s 拒绝。",
 		"成为了新用户，获得了物品:",
+		"第一次将蚕宝宝升到了 %s 级，获得兑换券，可兑换物品:",
+		"的蚕宝宝升到了 %s 级。",
+		"成功将蚕仔成长成蝴蝶，用户等级升为 %s 级。",
 	}
 )
 
@@ -80,15 +89,15 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 	mysqlConn := common.GetMysqlConn()
 	var content, str string
 
-	if types == 2 || types == 6 || types == 0 || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 {
-		if types == 0 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 {
+	if types == ActiveLevelup || types == ActiveBindvendor || types == 6 || types == ActiveTreeup || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 || types == ActiveSWUp || types == ActiveBeButterfly {
+		if types == ActiveTreeup || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 || types == ActiveSWUp || types == ActiveBeButterfly {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]
 		}
 		content = fmt.Sprintf("%s%s", uname, str)
 	} else {
-		if types == 7 || types == 8 {
+		if types == ActiveSign || types == ActivePairEnd || types == ActiveFirstSWUp {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]
