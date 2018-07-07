@@ -155,7 +155,6 @@ func ExchangeGoods(c *gin.Context) {
 			idList = append(idList, bfList[j]["id"])
 		}
 	}
-	log.Println(idList)
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	goodsName, _ := silkworm.GetGoodsName(goodsid)
 	rs := silkworm.ExchangeGoods(vid, uid, goodsName, nowTime, idList)
