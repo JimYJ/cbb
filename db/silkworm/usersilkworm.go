@@ -2,6 +2,7 @@ package silkworm
 
 import (
 	"canbaobao/common"
+	"fmt"
 	"github.com/JimYJ/easysql/mysql"
 	"log"
 )
@@ -122,13 +123,15 @@ func GetSingleUserSWInfo(id string) (map[string]string, error) {
 }
 
 // UpExp 增加经验值
-func UpExp(newExp, level, name, id, uid, rucksackid string) bool {
+func UpExp(newExp, level, name, id, uid, rucksackid, keyTimes, keyDate, ip, nowTime, nowDate string, feedTimes int) bool {
 	mysqlConn := common.GetMysqlConn()
+	usersql := fmt.Sprintf("update user set loginip = ?,logintime = ?,%s = ?,%s = ? where id = ?", keyTimes, keyDate)
 	mysqlConn.TxBegin()
 	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
 	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set exp = ?,level = ?,name = ? where id = ?", newExp, level, name, id)
-	if err != nil || err2 != nil {
-		log.Println(err, err2)
+	_, err3 := mysqlConn.TxUpdate(mysql.Statement, usersql, ip, nowTime, feedTimes, nowDate, uid)
+	if err != nil || err2 != nil || err3 != nil {
+		log.Println(err, err2, err3)
 		mysqlConn.TxRollback()
 		return false
 	}
@@ -137,12 +140,13 @@ func UpExp(newExp, level, name, id, uid, rucksackid string) bool {
 }
 
 // BeButterfly 化蝶
-func BeButterfly(newExp, name, swid, id, uid, rucksackid, level, loginip, nowTime string) bool {
+func BeButterfly(newExp, name, swid, id, uid, rucksackid, level, loginip, nowTime, nowDate, keyTimes, keyDate string, feedTimes int) bool {
 	mysqlConn := common.GetMysqlConn()
+	usersql := fmt.Sprintf("update user set level = ?,loginip = ?,logintime = ?,updatetime = ?,%s = ?,%s = ? where id = ?", keyTimes, keyDate)
 	mysqlConn.TxBegin()
 	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
 	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set exp = ?,level = ?,hatch = ?, name = ?,swid = ? where id = ?", newExp, 10, 1, name, swid, id)
-	_, err3 := mysqlConn.TxUpdate(mysql.Statement, "update user set level = ?,loginip = ?,logintime = ?,updatetime = ? where id = ?", level, loginip, nowTime, nowTime, uid)
+	_, err3 := mysqlConn.TxUpdate(mysql.Statement, usersql, level, loginip, nowTime, nowTime, feedTimes, nowDate, uid)
 	if err != nil || err2 != nil || err3 != nil {
 		log.Println(err, err2, err3)
 		mysqlConn.TxRollback()
@@ -150,4 +154,11 @@ func BeButterfly(newExp, name, swid, id, uid, rucksackid, level, loginip, nowTim
 	}
 	mysqlConn.TxCommit()
 	return true
+}
+
+// GetUserButterflyList 获得用户蝴蝶列表
+func GetUserButterflyList(swid, uid, limit string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	sql := fmt.Sprintf("select id from usersw where swid = ? and uid = ? and hatch = ? and pair = ? limit %s", limit)
+	return mysqlConn.GetResults(mysql.Statement, sql, swid, uid, 1, 0)
 }

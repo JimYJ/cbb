@@ -79,6 +79,10 @@ var (
 	Err420CannotFeedButterfly = "feed to silkworm only!"
 	//Err421SilkwormHatching 蚕宝宝还在孵化中，无法喂养
 	Err421SilkwormHatching = "silkworm still hatching, cannot feed it!"
+	//Err422NotEnoughExchange 兑换条件不足
+	Err422NotEnoughExchange = "insufficient exchange conditions!"
+	//Err423PairingCannotExchange 蝴蝶配对中无法兑换商品
+	Err423PairingCannotExchange = "butterfly is pairing,it cannot exchange goods!"
 	//Err429Frequent 请求过于频繁
 	Err429Frequent = "Request too Frequent!"
 	//Err500DBrequest 数据库请求错误

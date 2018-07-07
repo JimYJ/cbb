@@ -170,7 +170,7 @@ func ChangeMapInterface(list []map[string]string) []map[string]interface{} {
 
 // CheckLimit 检测有没有超过每日限额
 func CheckLimit(execTimes, execLastData, nowDate string, limitTimes int) int {
-	nowAnswers := 1
+	nowExecTimes := 1
 	if execLastData != "" {
 		lastData, _ := time.Parse("2006-01-02", execLastData)
 		today, _ := time.Parse("2006-01-02", nowDate)
@@ -180,11 +180,11 @@ func CheckLimit(execTimes, execLastData, nowDate string, limitTimes int) int {
 				if a >= limitTimes {
 					return -1
 				}
-				nowAnswers += a
+				nowExecTimes += a
 			}
 		}
 	}
-	return nowAnswers
+	return nowExecTimes
 }
 
 // ChangeMapInt 转换map[string]string 为map[string]int

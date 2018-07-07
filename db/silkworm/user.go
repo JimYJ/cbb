@@ -42,7 +42,9 @@ func getUser() ([]map[string]string, error) {
 func GetUser() ([]map[string]string, error) {
 	list, err := getUser()
 	for i := 0; i < len(list); i++ {
-		if list[i]["vid"] == "0" {
+		if list[i]["vid"] == "" {
+			list[i]["vendor"] = "未绑定"
+		} else if list[i]["vid"] == "0" {
 			list[i]["vendor"] = "数据错误"
 		} else {
 			if !common.CheckInt(list[i]["vendorid"]) {
@@ -50,7 +52,7 @@ func GetUser() ([]map[string]string, error) {
 			} else {
 				vname, err := GetVendorName(list[i]["vid"])
 				if err != nil || vname == "" {
-					list[i]["vendor"] = "数据错误"
+					list[i]["vendor"] = "未绑定"
 				} else {
 					list[i]["vendor"] = vname
 				}

@@ -2,7 +2,9 @@ package silkworm
 
 import (
 	"canbaobao/common"
+	"fmt"
 	"github.com/JimYJ/easysql/mysql"
+	"log"
 )
 
 // AddVoucher 新增兑换券
@@ -63,4 +65,38 @@ func GetVoucher(vid string) ([]map[string]string, error) {
 		}
 	}
 	return list, err
+}
+
+// GetVoucherByUser 用户兑换券
+func GetVoucherByUser(uid, paginaSQL string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, fmt.Sprintf("select voucher.id,content,voucher.createtime,vendor.name,vendorid from voucher left join vendor on vendorid = vendor.id where voucher.uid = ? and `status` = ? ORDER BY id desc %s", paginaSQL), uid, 0)
+}
+
+// GetVoucherByUserCount 用户兑换券总数
+func GetVoucherByUserCount(uid string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select count(*) from voucher where uid = ? and `status` = ? ORDER BY id desc", uid, 0)
+}
+
+// ExchangeGoods 兑换商品
+func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool {
+	mysqlConn := common.GetMysqlConn()
+	rs := true
+	mysqlConn.TxBegin()
+	_, err := mysqlConn.TxInsert(mysql.Statement, "insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,createtime = ?,updatetime = ?", vendorid, uid, content, 0, nowTime, nowTime)
+	for i := 0; i < len(idList); i++ {
+		a, err := mysqlConn.TxDelete(mysql.Statement, "delete from usersw where id = ?", idList[i])
+		if err != nil || a == 0 {
+			log.Println(err)
+			rs = false
+			break
+		}
+	}
+	if !rs || err != nil {
+		mysqlConn.TxRollback()
+		return false
+	}
+	mysqlConn.TxCommit()
+	return rs
 }

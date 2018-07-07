@@ -84,3 +84,9 @@ func CheckRepeat(gid, butterflyid string) (string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetVal(mysql.Statement, "select count(*) from goodsredeem where goodsid = ? and butterflyid = ?", gid, butterflyid)
 }
+
+// GetGoodsRedeemList 获取商品兑换条件ID
+func GetGoodsRedeemList(goodsid string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select butterflyid,numbers from goodsredeem where goodsid = ? ORDER BY id", goodsid)
+}
