@@ -26,10 +26,10 @@ func HourTimer() {
 		select {
 		case <-ht.C:
 			//整小时执行
-			log.Println("=========start exec hour task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
+			log.Println("=========start exec hour task==========")
 			status()
 			sproutLeaf()
-			log.Println("=========end exec hour task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
+			log.Println("=========end exec hour task==========")
 		}
 	}
 }
@@ -43,8 +43,8 @@ func DayTimer() {
 		select {
 		case <-dt.C:
 			//每天0点执行
-			log.Println("=========start exec day task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
-			log.Println("=========end exec day task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
+			log.Println("=========start exec day task==========")
+			log.Println("=========end exec day task==========")
 		}
 	}
 }
