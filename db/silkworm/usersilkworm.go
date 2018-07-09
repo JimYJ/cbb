@@ -119,16 +119,19 @@ func CheckPairCondition(userswid string) (string, string, string) {
 // GetSingleUserSWInfo 获取单只蚕宝宝的信息
 func GetSingleUserSWInfo(id string) (map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetRow(mysql.Statement, "select id,uid,hatch,level,exp,swtype,enable from usersw where id = ?", id)
+	return mysqlConn.GetRow(mysql.Statement, "select id,uid,hatch,level,exp,swtype,enable,health from usersw where id = ?", id)
 }
 
 // UpExp 增加经验值
-func UpExp(newExp, level, name, id, uid, rucksackid, keyTimes, keyDate, ip, nowTime, nowDate string, feedTimes int) bool {
+func UpExp(newExp, level, name, id, uid, rucksackid, keyTimes, keyDate, ip, nowTime, nowDate, itemid string, feedTimes, health int) bool {
 	mysqlConn := common.GetMysqlConn()
+	if itemid == "1" && health < 100 {
+		health++
+	}
 	usersql := fmt.Sprintf("update user set loginip = ?,logintime = ?,%s = ?,%s = ? where id = ?", keyTimes, keyDate)
 	mysqlConn.TxBegin()
 	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
-	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set exp = ?,level = ?,name = ? where id = ?", newExp, level, name, id)
+	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set health = ?,exp = ?,level = ?,name = ? where id = ?", health, newExp, level, name, id)
 	_, err3 := mysqlConn.TxUpdate(mysql.Statement, usersql, ip, nowTime, feedTimes, nowDate, uid)
 	if err != nil || err2 != nil || err3 != nil {
 		log.Println(err, err2, err3)

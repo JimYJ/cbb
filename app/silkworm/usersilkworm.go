@@ -440,6 +440,7 @@ func Feed(c *gin.Context) {
 	enable := userSilkwormInfo["enable"]
 	level, _ := strconv.Atoi(userSilkwormInfo["level"])
 	silkwormExp, _ := strconv.Atoi(userSilkwormInfo["exp"])
+	health, _ := strconv.Atoi(userSilkwormInfo["health"])
 	swtype := userSilkwormInfo["swtype"]
 	if itemTypes != "1" && itemTypes != "0" {
 		middleware.RespondErr(419, common.Err419ItemCannotFeed, c)
@@ -475,7 +476,7 @@ func Feed(c *gin.Context) {
 		nextLevelExp, _ := strconv.Atoi(silkwormLevel[newlevel]["exp"])
 		if itemExp+silkwormExp < nextLevelExp {
 			// 增加经验值
-			rs := silkworm.UpExp(strconv.Itoa(itemExp+silkwormExp), strconv.Itoa(newlevel), silkwormLevel[newlevel-1]["name"], id, uid, rucksackid, keyTimes, keyDate, ip, nowTime, nowDate, feedTimes)
+			rs := silkworm.UpExp(strconv.Itoa(itemExp+silkwormExp), strconv.Itoa(newlevel), silkwormLevel[newlevel-1]["name"], id, uid, rucksackid, keyTimes, keyDate, ip, nowTime, nowDate, itemid, feedTimes, health)
 			if !rs {
 				middleware.RespondErr(500, common.Err500DBSave, c)
 				return

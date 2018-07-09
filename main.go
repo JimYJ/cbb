@@ -3,11 +3,13 @@ package main
 import (
 	"canbaobao/common"
 	"canbaobao/route"
+	"canbaobao/service"
 	"log"
 )
 
 func main() {
-	inits()
+	// inits()
+	service.HourTimer()
 }
 
 func inits() {

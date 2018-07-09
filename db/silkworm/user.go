@@ -38,6 +38,12 @@ func getUser() ([]map[string]string, error) {
 	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,vid,treelevel,level,loginip,logintime,createtime from user ORDER BY id desc")
 }
 
+// GetUserForTimer 获取用户(定时任务)
+func GetUserForTimer() ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select id,sproutleafs,sproutleafday,treelevel from user ORDER BY id desc")
+}
+
 // GetUser 获取用户
 func GetUser() ([]map[string]string, error) {
 	list, err := getUser()
