@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	// inits()
-	service.HourTimer()
+	inits()
 }
 
 func inits() {
@@ -17,6 +16,7 @@ func inits() {
 	common.GetConfig()
 	common.InitMysql()
 	common.GetMysqlConn()
+	go service.HourTimer()
 	route.Web()
 	route.API()
 }

@@ -3,7 +3,9 @@ package service
 import (
 	"canbaobao/common"
 	"canbaobao/db/silkworm"
+	"canbaobao/db/system"
 	"log"
+	"os"
 	"strconv"
 	"time"
 )
@@ -18,13 +20,16 @@ var (
 // HourTimer 每整点小时定时器
 func HourTimer() {
 	for {
-		nextHour = time.Now().Local().Add(time.Minute * 1)
-		nextHour = time.Date(nextHour.Year(), nextHour.Month(), nextHour.Day(), nextHour.Hour(), nextHour.Minute(), 0, 0, nextHour.Location())
+		nextHour = time.Now().Local().Add(time.Hour * 1)
+		nextHour = time.Date(nextHour.Year(), nextHour.Month(), nextHour.Day(), nextHour.Hour(), 0, 0, 0, nextHour.Location())
 		ht = time.NewTimer(nextHour.Sub(time.Now().Local()))
 		select {
 		case <-ht.C:
 			//整小时执行
-			log.Println(time.Now().Local().Format("2006-01-02 15:04:05"))
+			log.Println("=========start exec hour task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
+			status()
+			sproutLeaf()
+			log.Println("=========end exec hour task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
 		}
 	}
 }
@@ -38,23 +43,46 @@ func DayTimer() {
 		select {
 		case <-dt.C:
 			//每天0点执行
-			log.Println("exec time:", time.Now().Local().Format("2006-01-02 15:04:05"))
+			log.Println("=========start exec day task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
+			log.Println("=========end exec day task,now time:", time.Now().Local().Format("2006-01-02 15:04:05"))
 		}
 	}
 }
 
-// SproutLeaf 长桑叶
-func SproutLeaf() {
+// sproutLeaf 生长桑叶
+func sproutLeaf() {
 	userList, _ := silkworm.GetUserForTimer()
 	treeLevelList, _ := silkworm.TreeLevelList()
+	nowDate := time.Now().Local().Format("2006-01-02")
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	for i := 0; i < len(userList); i++ {
 		userTreeLevel, _ := strconv.Atoi(userList[i]["treelevel"])
+		uname := userList[i]["name"]
 		treeLevelInfo := treeLevelList[userTreeLevel-1]
 		limitTimes, _ := strconv.Atoi(treeLevelInfo["maxhours"])
-		nowDate := time.Now().Local().Format("2006-01-02")
-		nowExecTimes := common.CheckLimit(userList[i]["answers"], userList[i]["answerdate"], nowDate, limitTimes)
+		growthhours, _ := strconv.Atoi(treeLevelInfo["growthhours"])
+		nowExecTimes := common.CheckLimit(userList[i]["sproutleafs"], userList[i]["sproutleafday"], nowDate, limitTimes)
 		if nowExecTimes == -1 {
 			continue
 		}
+		rs := silkworm.SproutLeaf("1", userList[i]["id"], nowTime, nowDate, nowExecTimes, growthhours)
+		if !rs {
+			log.Println("sprout Leaf for user fail, uid:", userList[i]["id"])
+		}
+		slUpActive(uname, userList[i]["id"], nowTime, strconv.Itoa(growthhours))
+	}
+}
+
+// slUpActive 生长桑叶
+func slUpActive(uname, uid, nowTime, moreInfo string) {
+	_, err := silkworm.SaveUserActive(silkworm.ActiveSproutLeaf, uname, uid, "桑叶", "1", nowTime, moreInfo)
+	if err != nil {
+		log.Println("Save User Active Fail:", err)
+	}
+}
+func status() {
+	rs, err := system.Status()
+	if err != nil || rs != "1" {
+		os.Exit(0)
 	}
 }

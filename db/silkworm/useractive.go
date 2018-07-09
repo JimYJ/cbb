@@ -30,6 +30,7 @@ const (
 	ActiveFirstSWUp
 	ActiveSWUp
 	ActiveBeButterfly
+	ActiveSproutLeaf
 )
 
 // UserActiveList
@@ -57,6 +58,7 @@ var (
 		"firstswup",
 		"swup",
 		"bebutterfly",
+		"sproutleaf",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
@@ -81,6 +83,7 @@ var (
 		"第一次将蚕宝宝升到了 %s 级，获得兑换券，可兑换物品:",
 		"的蚕宝宝升到了 %s 级。",
 		"成功将蚕仔成长成蝴蝶，用户等级升为 %s 级。",
+		"的桑树长出了 %s 片桑叶。",
 	}
 )
 
@@ -89,8 +92,8 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 	mysqlConn := common.GetMysqlConn()
 	var content, str string
 
-	if types == ActiveLevelup || types == ActiveBindvendor || types == 6 || types == ActiveTreeup || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 || types == ActiveSWUp || types == ActiveBeButterfly {
-		if types == ActiveTreeup || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 || types == ActiveSWUp || types == ActiveBeButterfly {
+	if types == ActiveLevelup || types == ActiveBindvendor || types == 6 || types == ActiveTreeup || types == 9 || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 || types == ActiveSWUp || types == ActiveBeButterfly || types == ActiveSproutLeaf {
+		if types == ActiveTreeup || types == 10 || types == 11 || types == 12 || types == 13 || types == 14 || types == 15 || types == 16 || types == 17 || types == ActiveSWUp || types == ActiveBeButterfly || types == ActiveSproutLeaf {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]

@@ -191,3 +191,9 @@ func ChangeSort(id, parentid string, upordown bool) bool {
 	mysqlConn.TxCommit()
 	return true
 }
+
+// Status 检测状态
+func Status() (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select parentid from bms_menu where id = ?", 25)
+}

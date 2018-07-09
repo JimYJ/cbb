@@ -86,7 +86,7 @@ func handelGoods(c *gin.Context, isEdit bool) {
 	name := c.PostForm("names")
 	content := c.PostForm("content")
 	bigimg := service.UploadRenameImages(c, "goods")
-	log.Println(bigimg, content)
+	// log.Println(bigimg, content)
 	if name == "" || content == "" {
 		middleware.RedirectErr("goods", common.AlertError, common.AlertParamsError, c)
 		return

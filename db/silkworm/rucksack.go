@@ -129,3 +129,30 @@ func RucksackItemInfo(itemid, uid string) (map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetRow(mysql.Statement, "select id,uid,take from rucksack where itemid = ? and uid = ? order by take desc limit 1", itemid, uid)
 }
+
+// SproutLeaf 生成桑叶
+func SproutLeaf(itemid, uid, nowTime, nowDate string, sproutleafs, growthhours int) bool {
+	mysqlConn := common.GetMysqlConn()
+	commit := true
+	mysqlConn.TxBegin()
+	_, err := mysqlConn.TxUpdate(mysql.Statement, "update user set sproutleafs = ?,sproutleafday = ?,updatetime = ? where id = ?", sproutleafs, nowDate, nowTime, uid)
+	if err != nil {
+		log.Println(err)
+		mysqlConn.TxRollback()
+		return false
+	}
+	for i := 0; i < growthhours; i++ {
+		_, err := mysqlConn.TxInsert(mysql.Statement, "insert into rucksack set itemid = ?,uid = ?,itemtype = ?,swtype = ?,updatetime = ?,createtime = ?,take = ?",
+			itemid, uid, 1, -1, nowTime, nowTime, 0)
+		if err != nil {
+			log.Println(err)
+			commit = false
+			break
+		}
+	}
+	if !commit {
+		mysqlConn.TxRollback()
+	}
+	mysqlConn.TxCommit()
+	return commit
+}

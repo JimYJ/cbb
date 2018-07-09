@@ -31,7 +31,7 @@
                         <label for="name" class="form-control-label">
                             商品介绍:
                         </label>
-                        <textarea id="content" name="content" ></textarea>
+                        <textarea id="content" name="content" style="display:none"></textarea>
                         <!-- style="display:none" -->
                         <div id="we-content">
                         </div>

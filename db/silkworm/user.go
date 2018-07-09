@@ -11,7 +11,7 @@ import (
 func AddUser(avatar, name, loginip, openid, nowTime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.Insert(mysql.Statement, "insert into user set avatar = ?,name = ?,treelevel = ?,level = ?,loginip = ?,openid = ?,logintime = ?,createtime = ?,updatetime = ?,enabled = ?",
-		avatar, name, 0, 0, loginip, openid, nowTime, nowTime, nowTime, 0)
+		avatar, name, 1, 0, loginip, openid, nowTime, nowTime, nowTime, 0)
 }
 
 // UserBindVendor 绑定店铺，激活用户
@@ -41,7 +41,7 @@ func getUser() ([]map[string]string, error) {
 // GetUserForTimer 获取用户(定时任务)
 func GetUserForTimer() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,sproutleafs,sproutleafday,treelevel from user ORDER BY id desc")
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,sproutleafs,sproutleafday,treelevel from user ORDER BY id desc")
 }
 
 // GetUser 获取用户

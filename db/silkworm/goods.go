@@ -27,7 +27,11 @@ func AddGoods(name, bigimg, content, nowTime string) (int64, error) {
 // EditGoods 编辑商品
 func EditGoods(name, bigimg, content, nowTime, id string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
+	if bigimg == "" {
+		return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,content = ?,updatetime = ? where id = ?", name, content, nowTime, id)
+	}
 	return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,bigimg = ?,content = ?,updatetime = ? where id = ?", name, bigimg, content, nowTime, id)
+
 }
 
 // GetGoods 获取商品

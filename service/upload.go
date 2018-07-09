@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	uploadIamgesPath = "statics\\upload\\img\\" // 图片上传路径
+	uploadIamgesPath = "./statics/upload/img/" // 图片上传路径
 	uploadIamgesURI  = "/upload/img/"
 )
 
@@ -48,7 +48,6 @@ func UploadByWangEditor(c *gin.Context) {
 		middleware.RespondErr(common.HTTPParamErr, common.GetAlertCentent(common.AlertFileFormatError), c)
 		return
 	}
-	log.Println(file.Size)
 	if file.Size > sizeLimit {
 		middleware.RespondErr(common.HTTPParamErr, common.GetAlertCentent(common.AlertFileSizeError), c)
 		return
