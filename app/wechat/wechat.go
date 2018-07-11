@@ -14,7 +14,7 @@ import (
 
 var (
 	wechat    = &service.WeChat{}
-	returnURL = "http://127.0.0.1/silkworm/index.html"
+	returnURL = "http://cbb.naiba168.com/sw/index.html"
 )
 
 // Start 转跳授权

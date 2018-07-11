@@ -4,6 +4,7 @@ import (
 	"canbaobao/common"
 	"fmt"
 	"github.com/JimYJ/easysql/mysql"
+	"log"
 )
 
 // UserActive
@@ -31,6 +32,7 @@ const (
 	ActiveSWUp
 	ActiveBeButterfly
 	ActiveSproutLeaf
+	ActiveSubHealth
 )
 
 // UserActiveList
@@ -59,6 +61,7 @@ var (
 		"swup",
 		"bebutterfly",
 		"sproutleaf",
+		"subhealth",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
@@ -84,6 +87,7 @@ var (
 		"的蚕宝宝升到了 %s 级。",
 		"成功将蚕仔成长成蝴蝶，用户等级升为 %s 级。",
 		"的桑树长出了 %s 片桑叶。",
+		"用户昨天没有喂蚕宝宝，蚕宝宝健康值下降 10% 。",
 	}
 )
 
@@ -111,12 +115,6 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 		ActiveList[types], uname, uid, itemname, itemid, content, nowTime)
 }
 
-// GetUserVid 获取用户VID
-func GetUserVid(openid string) (string, error) {
-	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetVal(mysql.Statement, "select vid from user where openid = ?", openid)
-}
-
 // GetUserActive 获取好友动态
 func GetUserActive(openid, vid, paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
@@ -128,4 +126,27 @@ func GetUserActive(openid, vid, paginaSQL string) ([]map[string]string, error) {
 func GetUserActiveCount(vid string) (string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetVal(mysql.Statement, "select count(*) from useractive left join user on uid = user.id where user.vid = ?", vid)
+}
+
+// UpdateHealthActive 用户蚕宝宝健康值下降动态
+func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTime string) bool {
+	mysqlConn := common.GetMysqlConn()
+	mysqlConn.TxBegin()
+	commit := true
+	for i := 0; i < len(*updateListIndex); i++ {
+		content := fmt.Sprintf("%s%s", (*list)[(*updateListIndex)[i]]["name"], ActiveStrList[ActiveSubHealth])
+		_, err := mysqlConn.TxInsert(mysql.Statement, "insert into useractive set type = ?,uname = ?,uid = ?,itemname = ?,itemid = ?,content = ?,createtime = ?",
+			ActiveList[ActiveSubHealth], (*list)[(*updateListIndex)[i]]["name"], (*list)[(*updateListIndex)[i]]["uid"], "", "0", content, nowTime)
+		if err != nil {
+			log.Println(err)
+			commit = false
+			break
+		}
+	}
+	if !commit {
+		mysqlConn.TxRollback()
+	} else {
+		mysqlConn.TxCommit()
+	}
+	return commit
 }

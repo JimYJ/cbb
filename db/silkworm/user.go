@@ -68,6 +68,12 @@ func GetUser() ([]map[string]string, error) {
 	return list, err
 }
 
+// GetUserVid 获取用户VID
+func GetUserVid(openid string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select vid from user where openid = ?", openid)
+}
+
 // GetSingleUserByID 获取单个用户
 func GetSingleUserByID(id string) (map[string]string, error) {
 	return getSingleUser(id, false)

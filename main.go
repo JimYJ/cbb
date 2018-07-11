@@ -17,6 +17,7 @@ func inits() {
 	common.InitMysql()
 	common.GetMysqlConn()
 	go service.HourTimer()
+	go service.DayTimer()
 	route.Web()
 	route.API()
 }

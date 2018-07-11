@@ -165,3 +165,30 @@ func GetUserButterflyList(swid, uid, limit string) ([]map[string]string, error) 
 	sql := fmt.Sprintf("select id from usersw where swid = ? and uid = ? and hatch = ? and pair = ? limit %s", limit)
 	return mysqlConn.GetResults(mysql.Statement, sql, swid, uid, 1, 0)
 }
+
+// GetSWlist 获取蚕宝宝
+func GetSWlist() ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select usersw.id,uid,health,user.name,leafday,sppday,mppday,lppday FROM usersw left join user on uid = user.id where hatch = 0")
+}
+
+// UpdateHealth 更新健康值
+func UpdateHealth(updateHealth map[string]int) bool {
+	mysqlConn := common.GetMysqlConn()
+	mysqlConn.TxBegin()
+	commit := true
+	for id, health := range updateHealth {
+		_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set health = ? where id = ?", health, id)
+		if err != nil {
+			log.Println(err)
+			commit = false
+			break
+		}
+	}
+	if !commit {
+		mysqlConn.TxRollback()
+	} else {
+		mysqlConn.TxCommit()
+	}
+	return commit
+}
