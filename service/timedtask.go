@@ -38,7 +38,7 @@ func HourTimer() {
 func DayTimer() {
 	for {
 		nextDay = time.Now().Local().Add(time.Hour * 24)
-		nextDay = time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 0, 0, 0, nextDay.Location())
+		nextDay = time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 30, 0, 0, nextDay.Location())
 		dt = time.NewTimer(nextDay.Sub(time.Now().Local()))
 		select {
 		case <-dt.C:
@@ -116,7 +116,7 @@ func checkHealth() {
 			updateListIndex = append(updateListIndex, i)
 		}
 	}
-	// log.Println(updateHealth, updateListIndex)
+	log.Println(updateHealth, updateListIndex)
 	silkworm.UpdateHealth(updateHealth)
 	silkworm.UpdateHealthActive(&updateListIndex, &list, nowTime)
 }
@@ -129,7 +129,7 @@ func calcNewHealth(health int) int {
 }
 
 func handelFeedDate(feedDate string, yesterday time.Time) bool {
-	if feedDate == "" {
+	if len(feedDate) == 0 {
 		return false
 	}
 	leaf, _ := time.Parse("2006-01-02", feedDate)
