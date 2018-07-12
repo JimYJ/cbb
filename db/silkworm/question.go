@@ -59,7 +59,10 @@ func AddOptions(qid, content, nowTime string, answer bool) bool {
 	mysqlConn := common.GetMysqlConn()
 	var a int
 	mysqlConn.TxBegin()
-	oldanswer, _ := mysqlConn.TxGetVal(mysql.Statement, "select answer from question where id = ?", qid)
+	oldanswer, err4 := mysqlConn.TxGetVal(mysql.Statement, "select answer from question where id = ?", qid)
+	if err4 != nil {
+		log.Println(err4)
+	}
 	commit := true
 	if answer {
 		a = 1

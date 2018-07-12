@@ -152,7 +152,7 @@ func EditOptions(c *gin.Context) {
 
 func handelOptions(c *gin.Context, isEdit bool) {
 	content := c.PostForm("content")
-	qid := c.Query("qid")
+	qid := c.PostForm("qid")
 	var answer bool
 	if c.PostForm("answer") == "1" {
 		answer = true
@@ -160,11 +160,13 @@ func handelOptions(c *gin.Context, isEdit bool) {
 		answer = false
 	}
 	if qid == "" || !common.CheckInt(qid) {
+		log.Println("qid is error:", qid)
 		middleware.RedirectErr("question", common.AlertError, common.AlertParamsError, c)
 		return
 	}
 	path := fmt.Sprintf("options?qid=%s&", qid)
 	if content == "" {
+		log.Println("content is error:", content)
 		middleware.RedirectErr2(path, common.AlertError, common.AlertParamsError, c)
 		return
 	}

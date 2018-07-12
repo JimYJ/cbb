@@ -20,6 +20,7 @@
                             选项内容:
                         </label>
                         <input type="text" class="form-control" placeholder="选项内容" id="content" name="content">
+                        <input type="hidden" class="form-control" name="qid" value="{{.qid}}">
                     </div>
                     <div class="form-group">
                         <label for="name" class="form-control-label">

@@ -129,7 +129,7 @@
             </div>
         </div>
         <!-- end:: Body -->
-        {{template "footer"}} {{template "modalBase"}} {{template "modalHandelOptions"}}
+        {{template "footer"}} {{template "modalBase"}} {{template "modalHandelOptions" .}}
     </div>
     <!-- end:: Page -->
     {{template "quicksidebar"}}
@@ -157,17 +157,17 @@
             deleteinfo = function (id,name) {
                 $("#ModalTitle").text("删除记录")
                 $("#modalContent").text("你确定要删除 问题选项 - " + name + "  吗?")
-                $("#deleteit").attr("href", "/deloptions?id=" + id)
+                $("#deleteit").attr("href", "/deloptions?qid={{.qid}}&id=" + id)
             }
             edit = function (id, content,answer) {
                 $("#ModalAddMenuTitle").text("编辑记录")
-                $("#handelAction").attr("action", "/editoptions?qid={{.qid}}&id=" + id)
+                $("#handelAction").attr("action", "/editoptions?id=" + id)
                 $("#answer").val(answer)
                 $("#content").attr("value", content)
             }
             add = function () {
                 $("#ModalAddMenuTitle").text("新增记录")
-                $("#handelAction").attr("action", "/addoptions?qid={{.qid}}")
+                $("#handelAction").attr("action", "/addoptions")
                 $("#answer").val("")
                 $("#content").attr("value", "")
             }
