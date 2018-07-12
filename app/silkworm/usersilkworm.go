@@ -66,8 +66,11 @@ func hatch(c *gin.Context, isSpecial bool) {
 	uid := uinfo["id"]
 	uname := uinfo["name"]
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
-	enablehous, _ := time.ParseDuration("24h")
-	enabletime := time.Now().Local().Add(enablehous).Unix()
+	// 关闭孵化过程
+	// enablehous, _ := time.ParseDuration("24h")
+	// enabletime := time.Now().Local().Add(enablehous).Unix()
+	// 激活时间改为0
+	var enabletime int64 = 0
 	rsults := silkworm.Hatch(uid, rucksackid, swtype, enabletime)
 	if rsults {
 		// 记录动态

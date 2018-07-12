@@ -17,7 +17,7 @@ func CheckHatch(openid string) (string, error) {
 func Hatch(uid, rucksackid string, swtype int, enabletime int64) bool {
 	mysqlConn := common.GetMysqlConn()
 	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxInsert(mysql.Statement, "insert into usersw set uid = ?,swtype = ?,hatch = ?,exp = ?,name = ?,health = ?,level = ?,enabletime = ?,enable = ?", uid, swtype, 0, 0, "蚕仔", 100, 1, enabletime, 0)
+	_, err := mysqlConn.TxInsert(mysql.Statement, "insert into usersw set uid = ?,swtype = ?,hatch = ?,exp = ?,name = ?,health = ?,level = ?,enabletime = ?,enable = ?", uid, swtype, 0, 0, "蚕仔", 100, 1, enabletime, 1) //enable改为1关闭孵化过程
 	_, err2 := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where id = ?", rucksackid)
 	if err != nil || err2 != nil {
 		log.Println(err, err2)
