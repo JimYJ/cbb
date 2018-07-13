@@ -37,11 +37,19 @@ func UserRucksack(c *gin.Context) {
 func AddItemToRucksack(activeType int, openid, itemid, nowTime, moreInfo string, itemInfo map[string]string) {
 	itemname := itemInfo["name"]
 	itemtype, _ := strconv.Atoi(itemInfo["types"])
-	uinfo, _ := silkworm.GetUID(openid)
+	uinfo, err := silkworm.GetUID(openid)
+	if err != nil {
+		log.Println("get user info fail:", err, "openid is:", openid)
+		return
+	}
 	uid := uinfo["id"]
 	uname := uinfo["name"]
+	if uinfo == nil || len(uid) == 0 || len(uname) == 0 {
+		log.Println("get user info fail:", err, "openid is:", openid)
+		return
+	}
 	// 奖励物品进背包
-	_, err := silkworm.AddItemRucksack(itemid, uid, nowTime, itemtype)
+	_, err = silkworm.AddItemRucksack(itemid, uid, nowTime, itemtype)
 	if err != nil {
 		log.Println("Add Item to Rucksack Fail", err)
 	}

@@ -34,7 +34,7 @@ func Login(c *gin.Context) {
 		c.Redirect(302, url)
 		return
 	} else if err == 401 {
-		log.Println(3)
+		log.Println("pass error:", user, pass)
 		url := fmt.Sprintf("login?t=%d&c=%d", common.AlertFail, common.AlertLoginFail)
 		c.Redirect(302, url)
 		return

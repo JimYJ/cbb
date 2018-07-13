@@ -34,12 +34,13 @@ func handelGuide(c *gin.Context, isEdit bool) {
 	if isEdit {
 		id := c.Query("id")
 		if !common.CheckInt(id) {
+			log.Println("id is error:", id)
 			middleware.RedirectErr("guide", common.AlertError, common.AlertParamsError, c)
 			return
 		}
 		_, err := silkworm.EditGuide(imgurl, nowTime, id)
 		if err != nil {
-			log.Println(err)
+			log.Println("edit guide fail:", err)
 			middleware.RedirectErr("guide", common.AlertFail, common.AlertSaveFail, c)
 			return
 		}

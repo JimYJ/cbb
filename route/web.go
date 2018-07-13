@@ -174,8 +174,8 @@ func Web() {
 	// 编辑(上传)攻略图
 	bms.POST("/editguide", silkworm.EditGuide)
 
-	// 攻略图理页
+	// 签到规则
 	bms.GET("/signed", middleware.CheckUserMenu("/signed"), silkworm.Signed)
-	// 编辑(上传)攻略图
+	// 编辑签到规则
 	bms.POST("/editsigned", silkworm.EditSigned)
 }

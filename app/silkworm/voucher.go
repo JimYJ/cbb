@@ -84,25 +84,27 @@ func UserVoucher(c *gin.Context) {
 	openid := c.PostForm("openid")
 	pageSize := c.PostForm("pageSize")
 	pageNo := c.PostForm("pageNo")
-	if openid == "" {
+	if len(openid) == 0 {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
 	uinfo, err := silkworm.GetUID(openid)
 	if err != nil {
-		log.Println(err)
+		log.Println("get user info fail:", err, "openid", openid)
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
 	uid := uinfo["id"]
 	totalCount, err := silkworm.GetVoucherByUserCount(uid)
 	if err != nil {
-		log.Println(err)
+		log.Println("get voucher total count fail:", err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
 	}
 	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
 	list, err := silkworm.GetVoucherByUser(uid, paginaSQL)
 	if err != nil {
-		log.Println(err)
+		log.Println("get voucher list fail:", err)
 		middleware.RespondErr(500, common.Err500DBrequest, c)
 		return
 	}

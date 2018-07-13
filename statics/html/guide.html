@@ -130,7 +130,7 @@
         $(document).ready(function () {
             showimg = function (url) {
                 var html = "<img src='" + url + "'>"
-                $("#showImg").append(html)
+                $("#showImg").html(html)
             }
             edit = function (id) {
                 $("#ModalAddMenuTitle").text("编辑记录")
