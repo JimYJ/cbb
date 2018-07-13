@@ -35,6 +35,10 @@ func UserInfoByID(c *gin.Context) {
 		return
 	}
 	uinfo, _ = silkworm.GetSingleUserByID(id)
+	if uinfo == nil {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
 	uinfo["butterflys"] = silkworm.GetUseButterflyCountByID(id)
 	c.JSON(200, gin.H{
 		"msg":      "success",
@@ -51,6 +55,10 @@ func UserInfoByOpenID(c *gin.Context) {
 		return
 	}
 	uinfo, _ = silkworm.GetSingleUserByOpenID(openid)
+	if uinfo == nil {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
 	uinfo["butterflys"] = silkworm.GetUserButterflyCountByOpenID(openid)
 	c.JSON(200, gin.H{
 		"msg":      "success",
