@@ -58,7 +58,7 @@ func GetVoucher(vid string) ([]map[string]string, error) {
 		} else {
 			name, err := GetUserName(list[i]["uid"])
 			if err != nil || name == "" {
-				list[i]["username"] = "数据错误"
+				list[i]["username"] = "用户已被删除"
 			} else {
 				list[i]["username"] = name
 			}

@@ -47,8 +47,8 @@ func GetUserInfo(c *gin.Context) {
 			middleware.RespondErr(500, common.Err500DBSave, c)
 			return
 		}
+		go sw.NewUserRuck(openid, nowTime)
 	}
-	go sw.NewUserRuck(openid, nowTime)
 	url := fmt.Sprintf("%s?openid=%s", returnURL, openid)
 	c.Redirect(302, url)
 }

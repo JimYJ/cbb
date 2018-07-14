@@ -31,6 +31,8 @@ var (
 	LoginGap = 60
 	//AppPath 网址路径
 	AppPath = "http://127.0.0.1"
+	// LogsPath 日志目录
+	LogsPath = ""
 )
 
 // 错误信息
@@ -118,6 +120,7 @@ type config struct {
 	AppID     string
 	SecretKey string
 	Host      string
+	LogsPath  string
 }
 
 type mysqlconf struct {
@@ -154,6 +157,7 @@ func GetConfig() {
 	AppID = conf.AppID
 	SecretKey = conf.SecretKey
 	host = conf.Host
+	LogsPath = conf.LogsPath
 }
 
 // InitMysql 初始化mysql参数
