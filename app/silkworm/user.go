@@ -61,14 +61,30 @@ func UserInfoByOpenID(c *gin.Context) {
 // FriendList 获取好友列表
 func FriendList(c *gin.Context) {
 	openid := c.PostForm("openid")
-	if openid == "" {
+	pageSize := c.PostForm("pageSize")
+	pageNo := c.PostForm("pageNo")
+	if len(openid) == 0 {
 		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
 		return
 	}
-	list, _ := silkworm.GetFriendList(openid)
+	vid, err := silkworm.GetUserVid(openid)
+	if err != nil || vid == "" {
+		log.Println("get user vid fail:", err)
+		middleware.RespondErr(412, common.Err412UserNotBind, c)
+		return
+	}
+	totalCount, err := silkworm.GetFriendCount(openid, vid)
+	if err != nil {
+		log.Println(err)
+	}
+	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
+	list, _ := silkworm.GetFriendList(openid, vid, paginaSQL)
 	c.JSON(200, gin.H{
-		"msg":  "success",
-		"list": list,
+		"msg":       "success",
+		"list":      list,
+		"PageTotal": PageTotal,
+		"pageSize":  pageSize,
+		"pageNo":    pageNo,
 	})
 }
 
@@ -94,7 +110,7 @@ func waterFertilize(c *gin.Context, isWater bool) {
 		treeLevel = 0
 	}
 	if treeLevel >= 7 {
-		middleware.RespondErr(204, common.Err204Limit, c)
+		middleware.RespondErr(407, common.Err407Limit, c)
 		return
 	}
 	nowDate := time.Now().Local().Format("2006-01-02")
@@ -103,7 +119,7 @@ func waterFertilize(c *gin.Context, isWater bool) {
 	if isWater {
 		check := common.CheckLimit(todayWater, waterDate, nowDate, 999)
 		if check == -1 {
-			middleware.RespondErr(200, common.Err201Limit, c)
+			middleware.RespondErr(201, common.Err201Limit, c)
 			return
 		}
 		if treewater >= 15 {

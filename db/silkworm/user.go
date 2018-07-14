@@ -103,10 +103,16 @@ func GetUserName(id string) (string, error) {
 }
 
 // GetFriendList 获取好友列表
-func GetFriendList(openid string) ([]map[string]string, error) {
+func GetFriendList(openid, vid, paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	vid, _ := mysqlConn.GetVal(mysql.Statement, "select vid from user where openid = ?", openid)
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,avatar,level from user where vid = ? and openid != ? order by level desc", vid, openid)
+	sql := fmt.Sprintf("select id,name,avatar,level from user where vid = ? and openid != ? order by level desc %s", paginaSQL)
+	return mysqlConn.GetResults(mysql.Statement, sql, vid, openid)
+}
+
+// GetFriendCount 获取好友总数
+func GetFriendCount(openid, vid string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select count(*) from user where vid = ? and openid != ? ", vid, openid)
 }
 
 // GetUserAnswers 获取用户当日回答次数

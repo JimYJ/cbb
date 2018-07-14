@@ -43,8 +43,6 @@ var (
 	Err202Limit = "The upper limit has been reached this level"
 	// Err203Limit 同一时间只可孵化一个
 	Err203Limit = "Only one hatch at the same time"
-	// Err204Limit 桑树已达最大等级
-	Err204Limit = "tree has reached the maximum level"
 	// Err205Limit 申请的蚕宝宝未孵化成蝴蝶，无法参与配对
 	Err205Limit = "the requested silkworm did not hatch into butterflies and could not participate in pairing."
 	// Err206Limit 申请的蝴蝶已经申请配对或正在配对中，无法参与配对
@@ -59,10 +57,12 @@ var (
 	Err401SmsCode = "Sms code is error!"
 	//Err402Param 参数不正确
 	Err402Param = "param is error!"
-	//Err402UserNotBind 用户未绑定
-	Err412UserNotBind = "User Is Not Bind Vendor!"
 	//Err406Unexpected 异常错误
 	Err406Unexpected = "request Unexpected!"
+	// Err407Limit 桑树已达最大等级
+	Err407Limit = "tree has reached the maximum level"
+	//Err412UserNotBind 用户未绑定
+	Err412UserNotBind = "User Is Not Bind Vendor!"
 	//Err413UserItemNoExist 物品不存在背包中
 	Err413UserItemNoExist = "item is no exist!"
 	//Err414UserIsBind 用户已绑定店铺

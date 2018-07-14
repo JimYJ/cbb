@@ -14,7 +14,7 @@ func UserActive(c *gin.Context) {
 	pageSize := c.PostForm("pageSize")
 	pageNo := c.PostForm("pageNo")
 	openid := c.PostForm("openid")
-	if openid == "" {
+	if len(openid) == 0 {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
