@@ -35,6 +35,7 @@ var (
 	dot       = []byte(".")
 	slash     = []byte("/")
 	reset     = string([]byte{27, 91, 48, 109})
+	logF      *os.File
 )
 
 func init() {
@@ -174,8 +175,12 @@ func Errorf(format string, args ...interface{}) {
 
 // CreateLogFile 创建日志分割文件
 func (m *file) CreateLogFile() {
+	if logF != nil {
+		logF.Close()
+	}
+	var err error
 	logFile.fileName = fmt.Sprintf("%s%s%s", "./logs/", time.Now().Format("2006-01-02_15-04"), ".log")
-	logF, err := os.OpenFile(logFile.fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logF, err = os.OpenFile(logFile.fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("打开日志文件失败：", err)
 	}
