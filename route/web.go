@@ -9,6 +9,7 @@ import (
 	"canbaobao/service"
 	"github.com/gin-gonic/gin"
 	"log"
+	// log "canbaobao/service/logs"
 )
 
 var (
@@ -23,6 +24,8 @@ func Web() {
 	router = gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	// router.Use(log.Logs())
+	// router.Use(log.Recovery())
 
 	router.Static("/assets", "./statics/assets")
 	router.Static("/upload", "./statics/upload")

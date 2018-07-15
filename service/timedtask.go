@@ -4,9 +4,6 @@ import (
 	"canbaobao/common"
 	"canbaobao/db/silkworm"
 	"canbaobao/db/system"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"io"
 	"log"
 	"os"
 	"strconv"
@@ -18,6 +15,7 @@ var (
 	nextDay  time.Time
 	ht       *time.Timer
 	dt       *time.Timer
+	logFile  *os.File
 )
 
 // HourTimer 每整点小时定时器
@@ -39,7 +37,6 @@ func HourTimer() {
 
 // DayTimer 每天0点小时定时器
 func DayTimer() {
-	// SplitLogs()
 	for {
 		nextDay = time.Now().Local().Add(time.Hour * 24)
 		// nextDay = time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), nextDay.Hour(), nextDay.Minute(), 0, 0, nextDay.Location())
@@ -50,7 +47,6 @@ func DayTimer() {
 			//每天0点执行
 			log.Println("=========start exec day task==========")
 			checkHealth()
-			// SplitLogs()
 			log.Println("=========end exec day task==========")
 		}
 	}
@@ -143,16 +139,4 @@ func handelFeedDate(feedDate string, yesterday time.Time) bool {
 		return false
 	}
 	return true
-}
-
-// SplitLogs 分割日志
-func SplitLogs() {
-	logPath := fmt.Sprintf("%s%s.log", common.LogsPath, time.Now().Local().Format("2006-01-02-150405"))
-	logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE, 0666) //os.Create(logPath)
-
-	if err != nil {
-		panic(err)
-	}
-	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
-	gin.DefaultErrorWriter = io.MultiWriter(logFile, os.Stderr)
 }

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	// log "canbaobao/service/logs"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -22,7 +23,10 @@ func ResponBodyLog(c *gin.Context) {
 	c.Writer = blw
 	c.Next()
 	statusCode := c.Writer.Status()
+	// method := c.Request.Method
+
 	if statusCode > 200 {
 		log.Println("Response body:", blw.body.String())
+		// log.Infof("| %3d | %13v | %-7s | %s", statusCode, c.ClientIP(), method, blw.body.String())
 	}
 }
