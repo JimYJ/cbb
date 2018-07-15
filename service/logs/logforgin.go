@@ -18,7 +18,7 @@ var (
 )
 
 type file struct {
-	level    map[string]string
+	level    map[string]bool
 	fileName string
 	date     int
 	fileFd   *os.File
@@ -38,7 +38,7 @@ var (
 )
 
 func init() {
-	logFile.level = map[string]string{"Info": "1", "Warn": "1", "Debug": "1", "Error": "1"}
+	logFile.level = map[string]bool{"Info": true, "Warn": true, "Debug": true, "Error": true}
 	logFile.CreateLogFile()
 }
 
@@ -146,28 +146,28 @@ func Println(args ...interface{}) {
 
 // Infof 普通信息输出
 func Infof(format string, args ...interface{}) {
-	if logFile.level["Info"] == "1" {
+	if logFile.level["Info"] {
 		logFile.info.Println(fmt.Sprintf(format, args...))
 	}
 }
 
 // Warnf 警告信息输出
 func Warnf(format string, args ...interface{}) {
-	if logFile.level["Warn"] == "1" {
+	if logFile.level["Warn"] {
 		logFile.warn.Println(fmt.Sprintf(format, args...))
 	}
 }
 
 // Debugf 调试信息输出
 func Debugf(format string, args ...interface{}) {
-	if logFile.level["Debug"] == "1" {
+	if logFile.level["Debug"] {
 		logFile.debug.Println(fmt.Sprintf(format, args...))
 	}
 }
 
 // Errorf 错误信息输出
 func Errorf(format string, args ...interface{}) {
-	if logFile.level["Error"] == "1" {
+	if logFile.level["Error"] {
 		logFile.err.Println(fmt.Sprintf(format, args...))
 	}
 }
