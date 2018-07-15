@@ -181,8 +181,8 @@ func (m *file) CreateLogFile() {
 	}
 	logFile.fileFd = logF
 	logFile.date = time.Now().Hour()
-	logFile.info = log.New(io.MultiWriter(os.Stdout, logFile.fileFd), "[GIN] Info:", log.Ldate|log.Ltime|log.Lshortfile)
-	logFile.warn = log.New(io.MultiWriter(logFile.fileFd), "[GIN] Warn:", log.Ldate|log.Ltime|log.Lshortfile)
-	logFile.err = log.New(io.MultiWriter(os.Stderr, logFile.fileFd), "[GIN] Error:", log.Ldate|log.Ltime|log.Lshortfile)
-	logFile.debug = log.New(io.MultiWriter(logFile.fileFd), "[GIN] Debug:", log.Ldate|log.Ltime|log.Lshortfile)
+	logFile.info = log.New(io.MultiWriter(os.Stdout, logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
+	logFile.warn = log.New(io.MultiWriter(logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
+	logFile.err = log.New(io.MultiWriter(os.Stderr, logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
+	logFile.debug = log.New(io.MultiWriter(logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
 }
