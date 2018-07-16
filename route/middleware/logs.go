@@ -25,6 +25,6 @@ func ResponBodyLog(c *gin.Context) {
 
 	if statusCode > 200 {
 		// log.Println("Response body:", blw.body.String())
-		log.Infof("| %3d | %13v | %s", statusCode, c.ClientIP(), blw.body.String())
+		log.Infof("| %3d | %15v | %s", statusCode, c.ClientIP(), blw.body.String())
 	}
 }
