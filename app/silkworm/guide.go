@@ -6,8 +6,8 @@ import (
 	"canbaobao/db/system"
 	"canbaobao/route/middleware"
 	"canbaobao/service"
+	log "canbaobao/service/logs"
 	"github.com/gin-gonic/gin"
-	"log"
 	"time"
 )
 

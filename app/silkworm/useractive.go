@@ -5,8 +5,8 @@ import (
 	"canbaobao/db"
 	"canbaobao/db/silkworm"
 	"canbaobao/route/middleware"
+	log "canbaobao/service/logs"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 // UserActive 获取用户动态

@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"canbaobao/common"
+	log "canbaobao/service/logs"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"time"
 )
 

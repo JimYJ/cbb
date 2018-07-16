@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/satori/go.uuid"
 	"io"
 	"log"
 	"math"
@@ -61,24 +60,6 @@ func JSON2Map(b []byte) map[string]interface{} {
 	var f interface{}
 	json.Unmarshal(b, &f)
 	return f.(map[string]interface{})
-}
-
-// UUID 获取UUID
-func UUID() string {
-	id, err := uuid.NewV4()
-	if err != nil {
-		log.Println(err)
-	}
-	return fmt.Sprintf("%s", id)
-}
-
-//CheckUUID 检查UUID是否正确
-func CheckUUID(UUID string) bool {
-	_, err := uuid.FromString(UUID)
-	if err != nil {
-		return false
-	}
-	return true
 }
 
 //GetUIDByToken 根据TOKEN获取UID

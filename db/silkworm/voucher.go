@@ -2,9 +2,9 @@ package silkworm
 
 import (
 	"canbaobao/common"
+	log "canbaobao/service/logs"
 	"fmt"
 	"github.com/JimYJ/easysql/mysql"
-	"log"
 )
 
 // AddVoucher 新增兑换券

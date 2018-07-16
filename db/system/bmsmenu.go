@@ -2,8 +2,8 @@ package system
 
 import (
 	"canbaobao/common"
+	log "canbaobao/service/logs"
 	"github.com/JimYJ/easysql/mysql"
-	"log"
 )
 
 // GetMenulist 获取多级菜单

@@ -3,9 +3,9 @@ package service
 import (
 	"canbaobao/common"
 	"canbaobao/route/middleware"
+	log "canbaobao/service/logs"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"path"
 	"strings"
 	"time"

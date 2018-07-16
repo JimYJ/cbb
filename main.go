@@ -4,7 +4,7 @@ import (
 	"canbaobao/common"
 	"canbaobao/route"
 	"canbaobao/service"
-	"log"
+	// log "canbaobao/service/logs"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 }
 
 func inits() {
-	log.SetFlags(log.Lshortfile | log.LstdFlags)
+	// log.SetFlags(log.Lshortfile | log.LstdFlags)
 	common.GetConfig()
 	common.InitMysql()
 	common.GetMysqlConn()

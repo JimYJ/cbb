@@ -26,6 +26,7 @@ type file struct {
 	warn     *log.Logger
 	info     *log.Logger
 	debug    *log.Logger
+	info2    *log.Logger
 }
 
 var (
@@ -46,8 +47,8 @@ func init() {
 // Logs 日志分割
 func Logs() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if logFile.date != time.Now().Minute() {
-			logFile.date = time.Now().Minute()
+		if logFile.date != time.Now().Day() {
+			logFile.date = time.Now().Day()
 			logFile.CreateLogFile()
 		}
 
@@ -142,7 +143,11 @@ func source(lines [][]byte, n int) []byte {
 
 // Println 输出日常日志
 func Println(args ...interface{}) {
-	logFile.info.Println(args...)
+	funcName, _, line, _ := runtime.Caller(1)
+	str := fmt.Sprintf("%s%s%d", runtime.FuncForPC(funcName).Name(), ":", line)
+	a := []interface{}{str}
+	a = append(a, args...)
+	logFile.info2.Println(a...)
 }
 
 // Infof 普通信息输出
@@ -179,15 +184,16 @@ func (m *file) CreateLogFile() {
 		logF.Close()
 	}
 	var err error
-	logFile.fileName = fmt.Sprintf("%s%s%s", "./logs/", time.Now().Format("2006-01-02_15-04"), ".log")
+	logFile.fileName = fmt.Sprintf("%s%s%s", "./logs/", time.Now().Format("2006-01-02"), ".log")
 	logF, err = os.OpenFile(logFile.fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("打开日志文件失败：", err)
 	}
 	logFile.fileFd = logF
 	logFile.date = time.Now().Hour()
-	logFile.info = log.New(io.MultiWriter(os.Stdout, logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
-	logFile.warn = log.New(io.MultiWriter(logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
-	logFile.err = log.New(io.MultiWriter(os.Stderr, logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
-	logFile.debug = log.New(io.MultiWriter(logFile.fileFd), "[GIN]", log.Ldate|log.Ltime|log.Lshortfile)
+	logFile.info2 = log.New(io.MultiWriter(os.Stdout, logFile.fileFd), "[GIN] ", log.Ldate|log.Ltime)
+	logFile.info = log.New(io.MultiWriter(os.Stdout, logFile.fileFd), "[GIN] ", log.Ldate|log.Ltime)
+	logFile.warn = log.New(io.MultiWriter(os.Stdout, logFile.fileFd), "[GIN] ", log.Ldate|log.Ltime)
+	logFile.err = log.New(io.MultiWriter(os.Stderr, logFile.fileFd), "[GIN] ", log.Ldate|log.Ltime)
+	logFile.debug = log.New(io.MultiWriter(os.Stderr, logFile.fileFd), "[GIN] ", log.Ldate|log.Ltime)
 }

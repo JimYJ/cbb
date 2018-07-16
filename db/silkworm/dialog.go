@@ -2,8 +2,8 @@ package silkworm
 
 import (
 	"canbaobao/common"
+	log "canbaobao/service/logs"
 	"github.com/JimYJ/easysql/mysql"
-	"log"
 )
 
 // DelDialog 删除蚕宝宝对话

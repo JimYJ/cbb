@@ -134,12 +134,12 @@ type mysqlconf struct {
 func (conf *config) getConfig() *config {
 	yamlFile, err := ioutil.ReadFile("config.yml")
 	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+		log.Panicf("yamlFile.Get err   #%v ", err)
 		return nil
 	}
 	err = yaml.Unmarshal(yamlFile, conf)
 	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+		log.Panicf("yamlFile.Get err   #%v ", err)
 		return nil
 	}
 	return conf

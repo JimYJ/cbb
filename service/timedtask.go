@@ -4,7 +4,7 @@ import (
 	"canbaobao/common"
 	"canbaobao/db/silkworm"
 	"canbaobao/db/system"
-	"log"
+	log "canbaobao/service/logs"
 	"os"
 	"strconv"
 	"time"

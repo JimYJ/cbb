@@ -3,9 +3,9 @@ package system
 import (
 	"canbaobao/common"
 	"canbaobao/db/silkworm"
+	log "canbaobao/service/logs"
 	"fmt"
 	"github.com/JimYJ/easysql/mysql"
-	"log"
 )
 
 //CheckPass 检查密码是否正确

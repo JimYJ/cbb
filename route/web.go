@@ -7,8 +7,8 @@ import (
 	"canbaobao/app/sys"
 	"canbaobao/route/middleware"
 	"canbaobao/service"
+	log "canbaobao/service/logs"
 	"github.com/gin-gonic/gin"
-	"log"
 	// log "canbaobao/service/logs"
 )
 
@@ -22,10 +22,10 @@ var (
 func Web() {
 	// gin.SetMode(gin.ReleaseMode)
 	router = gin.New()
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-	// router.Use(log.Logs())
-	// router.Use(log.Recovery())
+	// router.Use(gin.Logger())
+	// router.Use(gin.Recovery())
+	router.Use(log.Logs())
+	router.Use(log.Recovery())
 
 	router.Static("/assets", "./statics/assets")
 	router.Static("/upload", "./statics/upload")
@@ -37,7 +37,10 @@ func Web() {
 	wx = router.Group("/wx")
 	api.Use(middleware.ResponBodyLog)
 
-	log.SetOutput(gin.DefaultErrorWriter)
+	// 日志分割线
+	log.Println("================================restart===================================")
+
+	// log.SetOutput(gin.DefaultErrorWriter)
 
 	// ----------------------- web 路径 ---------------------------
 	bms := router.Group("/")

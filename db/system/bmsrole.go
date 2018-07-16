@@ -2,8 +2,8 @@ package system
 
 import (
 	"canbaobao/common"
+	log "canbaobao/service/logs"
 	"github.com/JimYJ/easysql/mysql"
-	"log"
 )
 
 // GetRole 获取角色简单列表

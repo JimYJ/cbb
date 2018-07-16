@@ -2,8 +2,8 @@ package silkworm
 
 import (
 	"canbaobao/common"
+	log "canbaobao/service/logs"
 	"github.com/JimYJ/easysql/mysql"
-	"log"
 )
 
 // DelQuestion 删除问题
