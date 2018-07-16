@@ -120,6 +120,7 @@ func checkHealth() {
 	}
 	log.Println(updateHealth, updateListIndex)
 	silkworm.UpdateHealth(updateHealth)
+	time.Sleep(time.Second * 30)
 	silkworm.UpdateHealthActive(&updateListIndex, &list, nowTime)
 }
 
