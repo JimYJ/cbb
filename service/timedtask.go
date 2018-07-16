@@ -15,6 +15,7 @@ var (
 	nextDay  time.Time
 	ht       *time.Timer
 	dt       *time.Timer
+	logFile  *os.File
 )
 
 // HourTimer 每整点小时定时器
@@ -38,6 +39,7 @@ func HourTimer() {
 func DayTimer() {
 	for {
 		nextDay = time.Now().Local().Add(time.Hour * 24)
+		// nextDay = time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), nextDay.Hour(), nextDay.Minute(), 0, 0, nextDay.Location())
 		nextDay = time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 30, 0, 0, nextDay.Location())
 		dt = time.NewTimer(nextDay.Sub(time.Now().Local()))
 		select {
