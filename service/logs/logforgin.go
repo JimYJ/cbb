@@ -67,11 +67,11 @@ func Logs() gin.HandlerFunc {
 			path = path + "?" + raw
 		}
 		if statusCode >= 200 && statusCode <= 400 {
-			Infof("| %3d | %13v | %15s | %-7s %s", statusCode, clientIP, latency, method, path)
+			Infof("| %3d | %15v | %15s | %-7s %s", statusCode, clientIP, latency, method, path)
 		} else if statusCode >= 400 && statusCode < 500 {
-			Warnf("| %3d | %13v | %15s | %-7s %s", statusCode, clientIP, latency, method, path)
+			Warnf("| %3d | %15v | %15s | %-7s %s", statusCode, clientIP, latency, method, path)
 		} else {
-			Errorf("| %3d | %13v | %15s | %-7s %s", statusCode, clientIP, latency, method, path)
+			Errorf("| %3d | %15v | %15s | %-7s %s", statusCode, clientIP, latency, method, path)
 		}
 	}
 }
