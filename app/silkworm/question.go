@@ -205,7 +205,7 @@ func UserQuestionList(c *gin.Context) {
 	checkAnswer, _ := silkworm.GetUserAnswers(openid)
 	nowDate := time.Now().Local().Format("2006-01-02")
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
-	nowAnswers := common.CheckLimit(checkAnswer["answers"], checkAnswer["answerdate"], nowDate, 999)
+	nowAnswers := common.CheckLimit(checkAnswer["answers"], checkAnswer["answerdate"], nowDate, 2)
 	if nowAnswers == -1 {
 		middleware.RespondErr(201, common.Err201Limit, c)
 		return

@@ -125,7 +125,7 @@ func waterFertilize(c *gin.Context, isWater bool) {
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	ip := c.ClientIP()
 	if isWater {
-		check := common.CheckLimit(todayWater, waterDate, nowDate, 999)
+		check := common.CheckLimit(todayWater, waterDate, nowDate, 1)
 		if check == -1 {
 			middleware.RespondErr(201, common.Err201Limit, c)
 			return
@@ -151,7 +151,7 @@ func waterFertilize(c *gin.Context, isWater bool) {
 			responSuccess(c)
 		}
 	} else {
-		check := common.CheckLimit(todayFertilizer, fertilizerDate, nowDate, 999)
+		check := common.CheckLimit(todayFertilizer, fertilizerDate, nowDate, 1)
 		if check == -1 {
 			middleware.RespondErr(200, common.Err201Limit, c)
 			return

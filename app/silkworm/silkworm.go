@@ -30,7 +30,7 @@ func EditLevel(c *gin.Context) {
 func handelLevel(c *gin.Context, isEdit bool) {
 	redeemitem := c.PostForm("redeemitem")
 	exp := c.PostForm("exp")
-	if redeemitem == "" || !common.CheckInt(exp) {
+	if !common.CheckInt(exp) {
 		middleware.RedirectErr("level", common.AlertError, common.AlertParamsError, c)
 		return
 	}

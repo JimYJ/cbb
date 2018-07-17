@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -488,13 +489,15 @@ func Feed(c *gin.Context) {
 		} else {
 			newlevel++
 			if userLevel < 1 {
-				// 发送兑换券
-				if vid == "" {
-					middleware.RespondErr(412, common.Err412UserNotBind, c)
-					return
+				// 发送兑换券，判断是否设置了奖励，没设置就不奖励,也不判断是否绑定店铺
+				awardItem := strings.TrimSpace(silkwormLevel[newlevel-1]["redeemitem"])
+				if len(awardItem) > 0 {
+					if vid == "" {
+						middleware.RespondErr(412, common.Err412UserNotBind, c)
+						return
+					}
+					go createVoucher(awardItem, vid, uid, nowTime, uname, strconv.Itoa(newlevel))
 				}
-				awardItem := silkwormLevel[newlevel-1]["redeemitem"]
-				go createVoucher(awardItem, vid, uid, nowTime, uname, strconv.Itoa(newlevel))
 			} else {
 				go swUpActive(uname, uid, nowTime, strconv.Itoa(newlevel))
 			}
