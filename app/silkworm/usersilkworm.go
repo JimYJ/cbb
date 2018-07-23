@@ -125,6 +125,7 @@ func userSilkwormList(c *gin.Context, uid string) {
 				}
 			}
 		}
+		// 孵化状态
 		if list[i]["enable"] == "1" {
 			list[i]["enabletime"] = "0"
 		} else if list[i]["enable"] == "0" {
@@ -153,16 +154,21 @@ func userSilkwormList(c *gin.Context, uid string) {
 				}
 			}
 		}
+		// 配对状态
 		if list[i]["pair"] == "0" {
 			if list[i]["hatch"] == "1" {
 				list[i]["pairstatus"] = "未配对"
 				list[i]["pairtime"] = "0"
+				list[i]["pairuname"] = ""
 			}
 		} else if list[i]["pair"] == "1" {
 			list[i]["pairstatus"] = "配对申请中"
 			list[i]["pairtime"] = "0"
+			uinfo, _ := silkworm.GetUinfoByID(list[i]["pairuid"])
+			list[i]["pairuname"] = uinfo["name"]
 		} else if list[i]["pair"] == "2" {
 			pairtime, _ := strconv.ParseInt(list[i]["pairtime"], 10, 64)
+			list[i]["pairuname"] = ""
 			if pairtime-nowUnix > 0 {
 				t, _ := time.ParseDuration(fmt.Sprintf("%ds", pairtime-nowUnix))
 				list[i]["pairtime"] = common.FormatTimeGap(t.String())
