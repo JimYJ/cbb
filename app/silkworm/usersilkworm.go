@@ -523,6 +523,7 @@ func Feed(c *gin.Context) {
 					middleware.RespondErr(500, common.Err500DBSave, c)
 					return
 				}
+				go Up2ButterflyRuck(uid, nowTime)
 				go beButterflyActive(uname, uid, nowTime, strconv.Itoa(newUserLevel))
 				break
 			}

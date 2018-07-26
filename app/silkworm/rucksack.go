@@ -169,3 +169,11 @@ func TakeFriendLeaf(c *gin.Context) {
 	}
 	responSuccess(c)
 }
+
+//Up2ButterflyRuck 进化成蝴蝶后，给用户新增一个蚕仔
+func Up2ButterflyRuck(uid, nowTime string) {
+	_, err := silkworm.AddSilkwormRucksack("5", uid, "0", nowTime, 0)
+	if err != nil {
+		log.Println("Add Item to Rucksack Fail", err, uid)
+	}
+}
