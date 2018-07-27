@@ -57,7 +57,16 @@
                                             <span>
                                                 <i class="la la-user"></i>
                                                 <span onclick="add()">
-                                                    新增兑换券
+                                                    给单个用户发放兑换券
+                                                </span>
+                                            </span>
+                                        </a>
+                                        <div class="m-separator m-separator--dashed d-xl-none"></div>
+                                        <a href="#" class="btn btn-accent m-btn m-btn--custom m-btn--icon m-btn--air m-btn--pill" data-toggle="modal" data-target="#Batch">
+                                            <span>
+                                                <i class="la la-user"></i>
+                                                <span>
+                                                    按地区发放兑换券
                                                 </span>
                                             </span>
                                         </a>
@@ -85,8 +94,14 @@
                                         <th title="content">
                                             兑换内容
                                         </th>
-                                        <th title="createtime">
-                                            创建时间
+                                        <th title="sratrDay">
+                                            生效时间
+                                        </th>
+                                        <th title="endDay">
+                                            失效时间
+                                        </th>
+                                        <th title="vtypestr">
+                                            生效状态
                                         </th>
                                         <th title="updatetime">
                                             最后编辑
@@ -103,10 +118,10 @@
                                             {{$v.id}}
                                         </td>
                                         <td>
-                                            {{$v.vendor}}
+                                            {{$v.vendorname}}
                                         </td>
                                         <td>
-                                            {{$v.username}}
+                                            {{$v.name}}
                                         </td>
                                         <td>
                                             {{$v.statustr}}
@@ -115,14 +130,26 @@
                                             {{$v.content}}
                                         </td>
                                         <td>
-                                            {{$v.createtime}}
+                                            {{$v.startday}}
+                                        </td>
+                                        <td>
+                                            {{$v.endday}}
+                                        </td>
+                                        <td>
+                                            {{if eq $v.vtypeint "1"}}
+                                            <span class="m--font-warning">{{$v.vtypestr}}</span>
+                                            {{else if eq $v.vtypeint "2"}}
+                                            <span class="m--font-danger">{{$v.vtypestr}}</span>
+                                            {{else}}
+                                            <span class="m--font-success">{{$v.vtypestr}}</span>
+                                            {{end}}
                                         </td>
                                         <td>
                                             {{$v.updatetime}}
                                         </td>
                                         <td>
                                             <button onclick="edit('{{$v.id}}','{{$v.content}}')" type="button" id="delbtn" class="btn btn-danger" data-toggle="modal"
-                                                data-target="#base" {{if eq $v.status "1"}}disabled="disabled"{{end}} >
+                                                data-target="#base" {{if ne $v.status "0"}}disabled="disabled" {{end}}>
                                                 使用
                                             </button>
                                         </td>
@@ -137,7 +164,7 @@
             </div>
         </div>
         <!-- end:: Body -->
-        {{template "footer"}} {{template "modalBase"}} {{template "modalHandelVoucher" .}}
+        {{template "footer"}} {{template "modalBase"}} {{template "modalHandelVoucher" .}} {{template "modalHandelBatchVoucher"}}
     </div>
     <!-- end:: Page -->
     {{template "quicksidebar"}}
@@ -155,14 +182,16 @@
     <script src="assets/app/js/sys/menu.js" type="text/javascript"></script>
     <script src="assets/app/js/store.min.js" type="text/javascript"></script>
     <script src="assets/app/js/common.js" type="text/javascript"></script>
+    <script src="assets/app/js/bootstrap-datepicker.Zh-cn.js" type="text/javascript"></script>
     <!--end::Page Resources -->
     <script type="text/javascript">
         $(document).ready(function () {
+            showProv()
             $("#deleteit").click(function () {
                 $("#base").removeClass("show")
                 $(".modal-backdrop").removeClass("show")
             })
-            edit = function (id,name) {
+            edit = function (id, name) {
                 $("#ModalTitle").text("使用兑换券")
                 $("#modalContent").text("一旦使用，不可撤销，你确定要使用 兑换券 - " + name + "  吗?")
                 $("#deleteit").attr("href", "/editvoucher?id=" + id)
@@ -174,8 +203,25 @@
                 $("#leader").attr("value", "")
                 $("#leaderphone").attr("value", "")
             }
+            $('#rangedate').datepicker({
+                todayHighlight: true,
+                autoclose: true,
+                clearBtn: true,
+                daysOfWeekHighlighted: [0, 6],
+                weekStart: 1,
+                format: "yyyy-mm-dd",
+                toggleActive: true,
+                language:"zh-CN", 
+                templates: {
+                    leftArrow: '<i class="la la-angle-left"></i>',
+                    rightArrow: '<i class="la la-angle-right"></i>'
+                }
+            })
         })
     </script>
+    <script src="assets/app/js/address/city.js" type="text/javascript"></script>
+    <script src="assets/app/js/address/method_noCountry.js" type="text/javascript"></script>
 </body>
 <!-- end::Body -->
+
 </html>
