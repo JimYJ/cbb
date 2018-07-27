@@ -41,7 +41,6 @@ func EditVoucher(c *gin.Context) {
 
 func handelVoucher(c *gin.Context, isEdit bool) {
 	_, _, vid := common.GetUIDByToken(common.GetTokenByCookie(c)) //用户的绑定店铺ID
-	content := c.PostForm("content")
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	// 编辑(使用兑换券)
 	if isEdit {
@@ -70,6 +69,11 @@ func handelVoucher(c *gin.Context, isEdit bool) {
 	}
 	vendorid := c.PostForm("vendorid")
 	uid := c.PostForm("uid")
+	content := c.PostForm("content")
+	if len(vendorid) == 0 || len(vendorid) == 0 || common.CheckInt(vendorid) || common.CheckInt(uid) || len(content) == 0 {
+		middleware.RedirectErr("voucher", common.AlertError, common.AlertParamsError, c)
+		return
+	}
 	_, err := silkworm.AddVoucher(vendorid, uid, content, nowTime)
 	if err != nil {
 		log.Println("add voucher fail:", err)
@@ -174,4 +178,55 @@ func exchangeGoodsActive(uname, uid, nowTime, goodsName string) {
 	if err != nil {
 		log.Println("Save User Active Fail:", err)
 	}
+}
+
+// BatchVoucher 批量发放兑换券
+func BatchVoucher(c *gin.Context) {
+	_, _, vid := common.GetUIDByToken(common.GetTokenByCookie(c)) //用户的绑定店铺ID
+	if vid != "0" {
+		middleware.RedirectErr("voucher", common.AlertFail, common.AlertVoucherIIError, c)
+		return
+	}
+	province := c.PostForm("province")
+	city := c.PostForm("city")
+	startDay := c.PostForm("startday")
+	endDay := c.PostForm("endday")
+	content := c.PostForm("content")
+	if len(province) == 0 || len(startDay) == 0 || len(endDay) == 0 || len(content) == 0 {
+		middleware.RedirectErr("voucher", common.AlertError, common.AlertParamsError, c)
+		return
+	}
+	s, err := time.Parse("2006-01-02", startDay)
+	e, err2 := time.Parse("2006-01-02", endDay)
+	t, _ := time.Parse("2006-01-02", time.Now().Local().Format("2006-01-02"))
+	if err != nil || err2 != nil {
+		middleware.RedirectErr("voucher", common.AlertError, common.AlertParamsError, c)
+		return
+	}
+	if s.Sub(e) > 0 {
+		middleware.RedirectErr("voucher", common.AlertError, common.AlertRangeDateError, c)
+		return
+	}
+	if t.Sub(e) > 0 {
+		middleware.RedirectErr("voucher", common.AlertError, common.AlertRangeDateErrorII, c)
+		return
+	}
+	ulist, err := silkworm.GetUserForAreaVendor(province, city)
+	if err != nil {
+		log.Println("Get User For Area Vendor Fail", err)
+		middleware.RedirectErr("voucher", common.AlertFail, common.AlertGetDataFail, c)
+		return
+	}
+	if ulist == nil || len(ulist) == 0 {
+		middleware.RedirectErr("voucher", common.AlertFail, common.AlertBatchVoucherFail, c)
+		return
+	}
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
+	rs := silkworm.BatchVoucher(ulist, nowTime, startDay, endDay, content)
+	if !rs {
+		middleware.RedirectErr("voucher", common.AlertFail, common.AlertSaveFail, c)
+		return
+	}
+	go silkworm.BatchVoucherActive(ulist, nowTime, startDay, endDay, content)
+	c.Redirect(302, "/voucher")
 }

@@ -214,3 +214,12 @@ func CheckUserExist(openid string) (int, error) {
 	count, err := strconv.Atoi(rs)
 	return count, err
 }
+
+// GetUserForAreaVendor 获取指定地区的店铺的绑定用户
+func GetUserForAreaVendor(province, city string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	if len(city) == 0 {
+		return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ?", city)
+	}
+	return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and city = ?", province, city)
+}

@@ -26,11 +26,11 @@
                             选择生效和失效日期:
                         </label>
                         <div class="input-daterange input-group" id="rangedate">
-                            <input type="text" class="form-control m-input" name="start" />
+                            <input type="text" class="form-control m-input" name="startday" />
                             <span class="input-group-addon">
                                 <i class="la la-ellipsis-h"></i>
                             </span>
-                            <input type="text" class="form-control" name="end" />
+                            <input type="text" class="form-control" name="endday" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -40,11 +40,11 @@
                         <select id="prov" onchange="showCity(this)" class="form-control m-input--fixed" name="province">
                         </select>
                         <!--城市选择-->
-                        <select id="city" onchange="showCountry(this)" class="form-control m-input--fixed" name="city">
+                        <select id="city"  class="form-control m-input--fixed" name="city"><!-- onchange="showCountry(this)" -->
                         </select>
                         <!--县区选择-->
-                        <select id="country" onchange="selecCountry(this)" class="form-control m-input--fixed" name="county">
-                        </select>
+                        <!-- <select id="country" onchange="selecCountry(this)" class="form-control m-input--fixed" name="county">
+                        </select> -->
                     </div>
                 </div>
                 <div class="modal-footer">

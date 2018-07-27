@@ -33,6 +33,7 @@ const (
 	ActiveBeButterfly
 	ActiveSproutLeaf
 	ActiveSubHealth
+	ActiveBatchVoucher
 )
 
 // UserActiveList
@@ -62,6 +63,7 @@ var (
 		"bebutterfly",
 		"sproutleaf",
 		"subhealth",
+		"batchvoucher",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
@@ -88,6 +90,7 @@ var (
 		"成功将蚕仔成长成蝴蝶，用户等级升为 %s 级，并同时获得了新的蚕仔。",
 		"的桑树长出了 %s 片桑叶。",
 		"用户昨天没有喂蚕宝宝，蚕宝宝健康值下降 10% 。",
+		"获得了平台赠送的兑换券，有效期为:%s，可兑换物品:",
 	}
 )
 
@@ -104,7 +107,7 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 		}
 		content = fmt.Sprintf("%s%s", uname, str)
 	} else {
-		if types == ActiveSign || types == ActivePairEnd || types == ActiveFirstSWUp {
+		if types == ActiveSign || types == ActivePairEnd || types == ActiveFirstSWUp || types == ActiveBatchVoucher {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]

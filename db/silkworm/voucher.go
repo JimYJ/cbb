@@ -102,7 +102,7 @@ func GetVoucherByUserCount(uid string) (string, error) {
 	return mysqlConn.GetVal(mysql.Statement, "select count(*) from voucher where uid = ? and `status` = ? ORDER BY id desc", uid, 0)
 }
 
-// ExchangeGoods 兑换商品
+// ExchangeGoods 兑换商品(生成兑换券)
 func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool {
 	mysqlConn := common.GetMysqlConn()
 	rs := true
@@ -122,4 +122,41 @@ func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool
 	}
 	mysqlConn.TxCommit()
 	return rs
+}
+
+// BatchVoucher 批量发放兑换券
+func BatchVoucher(ulist []map[string]string, nowTime, startDay, endDay, content string) bool {
+	mysqlConn := common.GetMysqlConn()
+	rs := true
+	mysqlConn.TxBegin()
+	var err error
+	var a int64
+	for i := 0; i < len(ulist); i++ {
+		a, err = mysqlConn.TxInsert(mysql.Statement, "insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,startday = ?,endday = ?,vtype = ?,createtime = ?,updatetime = ?",
+			ulist[i]["vid"], ulist[i]["id"], content, 0, startDay, endDay, 1, nowTime, nowTime)
+		if err != nil || a == 0 {
+			log.Println(err)
+			rs = false
+			break
+		}
+		a = 0
+	}
+	if !rs || err != nil {
+		mysqlConn.TxRollback()
+		return false
+	}
+	mysqlConn.TxCommit()
+	return rs
+}
+
+// BatchVoucherActive 批量发放兑换券的用户动态
+func BatchVoucherActive(ulist []map[string]string, nowTime, startDay, endDay, content string) {
+	dateStr := fmt.Sprintf("%s - %s", startDay, endDay)
+	for i := 0; i < len(ulist); i++ {
+		_, err := SaveUserActive(ActiveBatchVoucher, ulist[i]["name"], ulist[i]["id"], content, "0", nowTime, dateStr)
+		if err != nil {
+			log.Println("Save User Active Fail:", err, "user info:", ulist[i]["name"], ulist[i]["id"])
+		}
+		// time.Sleep(time.Millisecond)
+	}
 }

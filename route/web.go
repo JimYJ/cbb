@@ -159,6 +159,8 @@ func Web() {
 	bms.POST("/addvoucher", silkworm.AddVoucher)
 	// 编辑(使用)兑换券
 	bms.GET("/editvoucher", silkworm.EditVoucher)
+	// 按地区批量发放兑换券
+	bms.POST("/batchvoucher", silkworm.BatchVoucher)
 
 	// 用户管理
 	bms.GET("/user", middleware.CheckUserMenu("/user"), silkworm.User)
