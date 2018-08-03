@@ -1,6 +1,7 @@
 package service
 
 import (
+	"canbaobao/common"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,12 +11,12 @@ import (
 )
 
 var (
-	redirectURI = "http://cbb.naiba168.com/wx/getuinfo"
+	redirectURI = fmt.Sprintf("%s/wx/getuinfo", common.AppPath)
 )
 
 // WeChat 微信接口
 type WeChat struct {
-	appID, appSecret, accessToken, code, openid string
+	appID, appSecret, AccessToken, code, openid, RefreshToken string
 }
 
 var (
@@ -45,9 +46,16 @@ func (w *WeChat) GetOpenID(code string) (string, string, error) {
 	}
 	if v, ok := results["access_token"]; ok {
 		if v != "" {
-			w.accessToken = v.(string)
+			w.AccessToken = v.(string)
 		} else {
 			return "", "", errors.New("get access token fail,access_token is empty")
+		}
+	}
+	if v, ok := results["refresh_token"]; ok {
+		if len(v.(string)) > 0 {
+			w.RefreshToken = v.(string)
+		} else {
+			return "", "", errors.New("get refresh token fail,refresh_token is empty")
 		}
 	}
 	if v, ok := results["openid"]; ok {
@@ -57,12 +65,12 @@ func (w *WeChat) GetOpenID(code string) (string, string, error) {
 			return "", "", errors.New("get openid fail,access_token is empty")
 		}
 	}
-	return w.openid, w.accessToken, nil
+	return w.openid, w.AccessToken, nil
 }
 
 //GetUserInfo 获取用户信息
 func (w *WeChat) GetUserInfo() (string, string, error) {
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN", w.accessToken, w.openid)
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN", w.AccessToken, w.openid)
 	rs, err := Get(url)
 	if err != nil {
 		return "", "", err
@@ -112,4 +120,34 @@ func JSON2Map(b []byte) map[string]interface{} {
 	var f interface{}
 	json.Unmarshal(b, &f)
 	return f.(map[string]interface{})
+}
+
+// RefreshAccessToken 刷新授权TOKEN
+func (w *WeChat) RefreshAccessToken(refreshToken string) error {
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&grant_type=refresh_token&refresh_token=%s", w.appID, refreshToken)
+	rs, err := Get(url)
+	if err != nil {
+		return err
+	}
+	results := JSON2Map(rs)
+	if v, ok := results["errcode"]; ok {
+		errcode := v.(float64)
+		str := strconv.Itoa(int(errcode))
+		return errors.New(str)
+	}
+	if v, ok := results["access_token"]; ok {
+		if v != "" {
+			w.AccessToken = v.(string)
+		} else {
+			return errors.New("get access token fail,access_token is empty")
+		}
+	}
+	if v, ok := results["refresh_token"]; ok {
+		if len(v.(string)) > 0 {
+			w.RefreshToken = v.(string)
+		} else {
+			return errors.New("get refresh token fail,refresh_token is empty")
+		}
+	}
+	return nil
 }

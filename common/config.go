@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"github.com/JimYJ/easysql/mysql"
 	"github.com/patrickmn/go-cache"
 	"gopkg.in/yaml.v2"
@@ -15,7 +16,7 @@ var (
 	port                       int
 	once                       sync.Once
 	c                          *cache.Cache
-	host                       string
+	AppPath                    string
 	// TokenTimeOut 登陆超时
 	TokenTimeOut = 2 * time.Hour
 	// CacheTimeOut 缓存超时
@@ -29,8 +30,6 @@ var (
 	LoginMaxLimit = 30
 	//LoginGap 计次时间间隔，单位是秒
 	LoginGap = 60
-	//AppPath 网址路径
-	AppPath = "http://127.0.0.1"
 	// LogsPath 日志目录
 	LogsPath = ""
 )
@@ -119,7 +118,7 @@ type config struct {
 	Mysql     mysqlconf
 	AppID     string
 	SecretKey string
-	Host      string
+	AppPath   string
 	LogsPath  string
 }
 
@@ -156,7 +155,7 @@ func GetConfig() {
 	pass = conf.Mysql.Pass
 	AppID = conf.AppID
 	SecretKey = conf.SecretKey
-	host = conf.Host
+	AppPath = conf.AppPath
 	LogsPath = conf.LogsPath
 }
 
@@ -181,4 +180,9 @@ func GetCache() *cache.Cache {
 		c = cache.New(TokenTimeOut, 10*time.Minute)
 	})
 	return c
+}
+
+// GetKeyName 获得AccessToken和RefreshToken的缓存KEY
+func GetKeyName(openid string) (string, string) {
+	return fmt.Sprintf("OpenIDAccessToken:%s", openid), fmt.Sprintf("OpenIDRefreshToken:%s", openid)
 }

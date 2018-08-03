@@ -31,6 +31,10 @@ func GetUserInfo(c *gin.Context) {
 		middleware.RespondErr(common.HTTPExternalErr, common.Err502Wechat, c)
 		return
 	}
+	// cc := common.GetCache()
+	// oATKey, oRTKey := common.GetKeyName(openid)
+	// cc.Set(oATKey, wechat.AccessToken, time.Minute*100)
+	// cc.Set(oRTKey, wechat.RefreshToken, time.Hour*24*25)
 	name, avatar, err := wechat.GetUserInfo()
 	if err != nil {
 		log.Println(err)
@@ -52,3 +56,8 @@ func GetUserInfo(c *gin.Context) {
 	url := fmt.Sprintf("%s?openid=%s", returnURL, openid)
 	c.Redirect(302, url)
 }
+
+// GetAccessToken 获得授权AccessToken
+// func GetAccessToken(c *gin.Context) {
+
+// }
