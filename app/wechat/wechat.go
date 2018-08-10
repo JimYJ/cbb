@@ -57,7 +57,26 @@ func GetUserInfo(c *gin.Context) {
 	c.Redirect(302, url)
 }
 
-// GetAccessToken 获得授权AccessToken
-// func GetAccessToken(c *gin.Context) {
-
-// }
+// GetAccessToken 获得全局AccessToken
+func GetAccessToken(c *gin.Context) {
+	cache := common.GetCache()
+	acKey := "acKey"
+	var AccessToken string
+	var err error
+	v, found := cache.Get(acKey)
+	if found != false {
+		AccessToken = v.(string)
+	} else {
+		AccessToken, err = wechat.GetAccessToken()
+		if err != nil {
+			log.Println(err)
+			middleware.RespondErr(502, common.Err502Wechat, c)
+			return
+		}
+		cache.Set(acKey, AccessToken, time.Minute*100)
+	}
+	c.JSON(200, gin.H{
+		"msg":         "succees",
+		"accessToken": AccessToken,
+	})
+}

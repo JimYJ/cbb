@@ -10,7 +10,7 @@ func API() {
 	// ----------------------- 微信相关路径 ---------------------------
 	wx.GET("/start", wechat.Start)
 	wx.GET("/getuinfo", wechat.GetUserInfo)
-
+	wx.GET("/getaccesstoken", wechat.GetAccessToken)
 	// ----------------------- api 接口路径 ---------------------------
 	// api.GET("/login", app.Login)
 	// 获取游戏攻略图

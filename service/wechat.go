@@ -10,10 +10,6 @@ import (
 	"strconv"
 )
 
-var (
-	redirectURI = fmt.Sprintf("%s/wx/getuinfo", common.AppPath)
-)
-
 // WeChat 微信接口
 type WeChat struct {
 	appID, appSecret, AccessToken, code, openid, RefreshToken string
@@ -28,6 +24,7 @@ var (
 func (w *WeChat) Start() string {
 	w.appID = appID
 	w.appSecret = appSecret
+	redirectURI := fmt.Sprintf("%s/wx/getuinfo", common.AppPath)
 	return fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=STATE#wechat_redirect", w.appID, redirectURI, "snsapi_userinfo")
 }
 
@@ -150,4 +147,26 @@ func (w *WeChat) RefreshAccessToken(refreshToken string) error {
 		}
 	}
 	return nil
+}
+
+//GetAccessToken 获取公众号 AccessToken
+func (w *WeChat) GetAccessToken() (string, error) {
+	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", w.appID, w.appSecret)
+	rs, err := Get(url)
+	if err != nil {
+		return "", err
+	}
+	results := JSON2Map(rs)
+	if _, ok := results["errcode"]; ok {
+		// errcode := v.(float64)
+		// str := strconv.Itoa(int(errcode))
+		return "", errors.New(results["errmsg"].(string))
+	}
+	if v, ok := results["access_token"]; ok {
+		if v != "" {
+			return v.(string), nil
+		}
+		return "", errors.New("get access token fail,access_token is empty")
+	}
+	return "", errors.New("get access token fail,respon key access_token is null")
 }
