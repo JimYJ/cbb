@@ -11,6 +11,7 @@ func API() {
 	wx.GET("/start", wechat.Start)
 	wx.GET("/getuinfo", wechat.GetUserInfo)
 	wx.GET("/getaccesstoken", wechat.GetAccessToken)
+	wx.GET("/getticket", wechat.GetTicket)
 	// ----------------------- api 接口路径 ---------------------------
 	// api.GET("/login", app.Login)
 	// 获取游戏攻略图

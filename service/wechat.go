@@ -149,7 +149,7 @@ func (w *WeChat) RefreshAccessToken(refreshToken string) error {
 	return nil
 }
 
-//GetAccessToken 获取公众号 AccessToken
+//GetAccessToken 获取全局 AccessToken
 func (w *WeChat) GetAccessToken() (string, error) {
 	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", w.appID, w.appSecret)
 	rs, err := Get(url)
@@ -169,4 +169,21 @@ func (w *WeChat) GetAccessToken() (string, error) {
 		return "", errors.New("get access token fail,access_token is empty")
 	}
 	return "", errors.New("get access token fail,respon key access_token is null")
+}
+
+//GetJsapiTicket 获取公众号Jsapi Ticket
+func (w *WeChat) GetJsapiTicket(accessToken string) (string, error) {
+	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", accessToken)
+	rs, err := Get(url)
+	if err != nil {
+		return "", err
+	}
+	results := JSON2Map(rs)
+	if v, ok := results["ticket"]; ok {
+		if v != "" {
+			return v.(string), nil
+		}
+		return "", errors.New("get ticket fail,ticket is empty")
+	}
+	return "", errors.New("get ticket fail,respon key ticket is null")
 }

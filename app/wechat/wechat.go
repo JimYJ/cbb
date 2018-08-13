@@ -76,7 +76,44 @@ func GetAccessToken(c *gin.Context) {
 		cache.Set(acKey, AccessToken, time.Minute*100)
 	}
 	c.JSON(200, gin.H{
-		"msg":         "succees",
+		"msg":         "success",
 		"accessToken": AccessToken,
+	})
+}
+
+// GetTicket 获得JS Ticket
+func GetTicket(c *gin.Context) {
+	cache := common.GetCache()
+	acKey := "acKey"
+	tcKey := "tcKey"
+	var AccessToken, Ticket string
+	var err error
+	t, found := cache.Get(tcKey)
+	if found != false {
+		Ticket = t.(string)
+	} else {
+		v, found := cache.Get(acKey)
+		if found != false {
+			AccessToken = v.(string)
+		} else {
+			AccessToken, err = wechat.GetAccessToken()
+			if err != nil {
+				log.Println(err)
+				middleware.RespondErr(502, common.Err502Wechat, c)
+				return
+			}
+			cache.Set(acKey, AccessToken, time.Minute*100)
+		}
+		Ticket, err = wechat.GetJsapiTicket(AccessToken)
+		if err != nil {
+			log.Println(err)
+			middleware.RespondErr(502, common.Err502Wechat, c)
+			return
+		}
+		cache.Set(tcKey, Ticket, time.Minute*100)
+	}
+	c.JSON(200, gin.H{
+		"msg":    "success",
+		"ticket": Ticket,
 	})
 }
