@@ -16,15 +16,19 @@ func CheckHatch(openid string) (string, error) {
 // Hatch 孵化蚕仔
 func Hatch(uid, rucksackid string, swtype int, enabletime int64) bool {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxInsert(mysql.Statement, "insert into usersw set uid = ?,swtype = ?,hatch = ?,exp = ?,name = ?,health = ?,level = ?,enabletime = ?,enable = ?", uid, swtype, 0, 0, "蚕仔", 100, 1, enabletime, 1) //enable改为1关闭孵化过程
-	_, err2 := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where id = ?", rucksackid)
-	if err != nil || err2 != nil {
-		log.Println(err, err2)
-		mysqlConn.TxRollback()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	_, err = tx.Insert("insert into usersw set uid = ?,swtype = ?,hatch = ?,exp = ?,name = ?,health = ?,level = ?,enabletime = ?,enable = ?", uid, swtype, 0, 0, "蚕仔", 100, 1, enabletime, 1) //enable改为1关闭孵化过程
+	_, err2 := tx.Delete("delete from rucksack where id = ?", rucksackid)
+	if err != nil || err2 != nil {
+		log.Println(err, err2)
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
 	return true
 }
 
@@ -43,45 +47,57 @@ func Enable(id string) (int64, error) {
 // ApplyPair 申请配对
 func ApplyPair(id, pairid, uid, pairuid string) bool {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 1, pairid, pairuid, id)
-	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 0, id, uid, pairid)
-	if err != nil || err2 != nil {
-		log.Println(err, err2)
-		mysqlConn.TxRollback()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	_, err = tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 1, pairid, pairuid, id)
+	_, err2 := tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 0, id, uid, pairid)
+	if err != nil || err2 != nil {
+		log.Println(err, err2)
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
 	return true
 }
 
 // AllowPair 同意配对
 func AllowPair(id, pairid string, pairtime int64) bool {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ? where id = ?", 2, pairtime, id)
-	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ? where id = ?", 2, pairtime, pairid)
-	if err != nil || err2 != nil {
-		log.Println(err, err2)
-		mysqlConn.TxRollback()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	_, err = tx.Update("update usersw set pair = ?,pairtime = ? where id = ?", 2, pairtime, id)
+	_, err2 := tx.Update("update usersw set pair = ?,pairtime = ? where id = ?", 2, pairtime, pairid)
+	if err != nil || err2 != nil {
+		log.Println(err, err2)
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
 	return true
 }
 
 // EndPair 结束/拒绝配对
 func EndPair(id, pairid string) bool {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 0, 0, 0, 0, 0, id)
-	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 0, 0, 0, 0, 0, pairid)
-	if err != nil || err2 != nil {
-		log.Println(err, err2)
-		mysqlConn.TxRollback()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	_, err = tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 0, 0, 0, 0, 0, id)
+	_, err2 := tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 0, 0, 0, 0, 0, pairid)
+	if err != nil || err2 != nil {
+		log.Println(err, err2)
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
 	return true
 }
 
@@ -129,16 +145,20 @@ func UpExp(newExp, level, name, id, uid, rucksackid, keyTimes, keyDate, ip, nowT
 		health++
 	}
 	usersql := fmt.Sprintf("update user set loginip = ?,logintime = ?,%s = ?,%s = ? where id = ?", keyTimes, keyDate)
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
-	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set health = ?,exp = ?,level = ?,name = ? where id = ?", health, newExp, level, name, id)
-	_, err3 := mysqlConn.TxUpdate(mysql.Statement, usersql, ip, nowTime, feedTimes, nowDate, uid)
-	if err != nil || err2 != nil || err3 != nil {
-		log.Println(err, err2, err3)
-		mysqlConn.TxRollback()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	_, err = tx.Delete("delete from rucksack where uid = ? and id = ?", uid, rucksackid)
+	_, err2 := tx.Update("update usersw set health = ?,exp = ?,level = ?,name = ? where id = ?", health, newExp, level, name, id)
+	_, err3 := tx.Update(usersql, ip, nowTime, feedTimes, nowDate, uid)
+	if err != nil || err2 != nil || err3 != nil {
+		log.Println(err, err2, err3)
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
 	return true
 }
 
@@ -146,16 +166,20 @@ func UpExp(newExp, level, name, id, uid, rucksackid, keyTimes, keyDate, ip, nowT
 func BeButterfly(newExp, name, swid, id, uid, rucksackid, level, loginip, nowTime, nowDate, keyTimes, keyDate string, feedTimes int) bool {
 	mysqlConn := common.GetMysqlConn()
 	usersql := fmt.Sprintf("update user set level = ?,loginip = ?,logintime = ?,updatetime = ?,%s = ?,%s = ? where id = ?", keyTimes, keyDate)
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from rucksack where uid = ? and id = ?", uid, rucksackid)
-	_, err2 := mysqlConn.TxUpdate(mysql.Statement, "update usersw set exp = ?,level = ?,hatch = ?, name = ?,swid = ? where id = ?", newExp, 10, 1, name, swid, id)
-	_, err3 := mysqlConn.TxUpdate(mysql.Statement, usersql, level, loginip, nowTime, nowTime, feedTimes, nowDate, uid)
-	if err != nil || err2 != nil || err3 != nil {
-		log.Println(err, err2, err3)
-		mysqlConn.TxRollback()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	_, err = tx.Delete("delete from rucksack where uid = ? and id = ?", uid, rucksackid)
+	_, err2 := tx.Update("update usersw set exp = ?,level = ?,hatch = ?, name = ?,swid = ? where id = ?", newExp, 10, 1, name, swid, id)
+	_, err3 := tx.Update(usersql, level, loginip, nowTime, nowTime, feedTimes, nowDate, uid)
+	if err != nil || err2 != nil || err3 != nil {
+		log.Println(err, err2, err3)
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
 	return true
 }
 
@@ -175,10 +199,14 @@ func GetSWlist() ([]map[string]string, error) {
 // UpdateHealth 更新健康值
 func UpdateHealth(updateHealth map[string]int) bool {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
 	commit := true
 	for id, health := range updateHealth {
-		_, err := mysqlConn.TxUpdate(mysql.Statement, "update usersw set health = ? where id = ?", health, id)
+		_, err := tx.Update("update usersw set health = ? where id = ?", health, id)
 		if err != nil {
 			log.Println(err)
 			commit = false
@@ -186,9 +214,9 @@ func UpdateHealth(updateHealth map[string]int) bool {
 		}
 	}
 	if !commit {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 	} else {
-		mysqlConn.TxCommit()
+		tx.Commit()
 	}
 	return commit
 }

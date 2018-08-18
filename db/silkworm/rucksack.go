@@ -98,6 +98,22 @@ func GetUserLeafUntakeByID(id string) ([]map[string]string, error) {
 	return mysqlConn.GetResults(mysql.Statement, "select id from rucksack where uid = ? and take = ? and itemid = ? order by id", id, 0, 1)
 }
 
+// GetUserLeafUntakeCountByID 获得用户未拾取桑叶数
+func GetUserLeafUntakeCountByID(id string) int {
+	mysqlConn := common.GetMysqlConn()
+	rs, err := mysqlConn.GetVal(mysql.Statement, "select count(*) from rucksack where uid = ? and take = ? and itemid = ? order by id", id, 0, 1)
+	if err != nil {
+		return 0
+	}
+	var reInt int
+	if len(rs) > 0 {
+		reInt, _ = strconv.Atoi(rs)
+	} else {
+		reInt = 0
+	}
+	return reInt
+}
+
 // TakeLeafByID 偷桑叶
 func TakeLeafByID(openid, loseUID, id, nowTime string) int {
 	mysqlConn := common.GetMysqlConn()
@@ -106,21 +122,25 @@ func TakeLeafByID(openid, loseUID, id, nowTime string) int {
 		return -1
 	}
 	takeUID := uinfo["id"]
-	mysqlConn.TxBegin()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return -1
+	}
 	var err2 error
-	rs, err := mysqlConn.Delete(mysql.Statement, "delete from rucksack where uid = ? and id = ? and take = ? and itemid = ?", loseUID, id, 0, 1)
+	rs, err := tx.Delete("delete from rucksack where uid = ? and id = ? and take = ? and itemid = ?", loseUID, id, 0, 1)
 	if rs >= 1 {
-		_, err2 = mysqlConn.Insert(mysql.Statement, "insert into rucksack set take = ?,uid = ?,itemid = ?,swtype = ?,createtime = ?,updatetime = ?", 1, takeUID, 1, -1, nowTime, nowTime)
+		_, err2 = tx.Insert("insert into rucksack set take = ?,uid = ?,itemid = ?,swtype = ?,createtime = ?,updatetime = ?", 1, takeUID, 1, -1, nowTime, nowTime)
 	} else {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return -1
 	}
 	if err != nil || err2 != nil {
 		log.Println(err, err2)
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return -2
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return 1
 }
 
@@ -134,15 +154,19 @@ func RucksackItemInfo(itemid, uid string) (map[string]string, error) {
 func SproutLeaf(itemid, uid, nowTime, nowDate string, sproutleafs, growthhours int) bool {
 	mysqlConn := common.GetMysqlConn()
 	commit := true
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxUpdate(mysql.Statement, "update user set sproutleafs = ?,sproutleafday = ?,updatetime = ? where id = ?", sproutleafs, nowDate, nowTime, uid)
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
+	_, err = tx.Update("update user set sproutleafs = ?,sproutleafday = ?,updatetime = ? where id = ?", sproutleafs, nowDate, nowTime, uid)
 	if err != nil {
 		log.Println(err)
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return false
 	}
 	for i := 0; i < growthhours; i++ {
-		_, err := mysqlConn.TxInsert(mysql.Statement, "insert into rucksack set itemid = ?,uid = ?,itemtype = ?,swtype = ?,updatetime = ?,createtime = ?,take = ?",
+		_, err := tx.Insert("insert into rucksack set itemid = ?,uid = ?,itemtype = ?,swtype = ?,updatetime = ?,createtime = ?,take = ?",
 			itemid, uid, 1, -1, nowTime, nowTime, 0)
 		if err != nil {
 			log.Println(err)
@@ -151,8 +175,8 @@ func SproutLeaf(itemid, uid, nowTime, nowDate string, sproutleafs, growthhours i
 		}
 	}
 	if !commit {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return commit
 }

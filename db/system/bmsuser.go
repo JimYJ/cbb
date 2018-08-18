@@ -90,27 +90,31 @@ func GetAdminRole(id string) []map[string]string {
 // AdminBindRole 绑定管理账户岗位
 func AdminBindRole(id, nowTime string, list []string) error {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxDelete(mysql.Statement, "delete from bms_userrole where userid = ?", id)
+	tx, err := mysqlConn.Begin()
 	if err != nil {
-		mysqlConn.TxRollback()
+		log.Println("begin tx fail", err)
+		return err
+	}
+	_, err = tx.Delete("delete from bms_userrole where userid = ?", id)
+	if err != nil {
+		tx.Rollback()
 		return err
 	}
 	for i := 0; i < len(list); i++ {
 		if !common.CheckInt(list[i]) {
 			break
 		}
-		_, err = mysqlConn.TxInsert(mysql.Statement, "insert into bms_userrole set  userid = ?,roleid = ?,createtime = ?,updatetime = ?", id, list[i], nowTime, nowTime)
+		_, err = tx.Insert("insert into bms_userrole set  userid = ?,roleid = ?,createtime = ?,updatetime = ?", id, list[i], nowTime, nowTime)
 		if err != nil {
 			log.Println(err)
 			break
 		}
 	}
 	if err != nil {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return err
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return nil
 }
 

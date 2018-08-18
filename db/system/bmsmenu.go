@@ -176,19 +176,23 @@ func ChangeSort(id, parentid string, upordown bool) bool {
 		list[j]["id"], list[j+1]["id"] = list[j+1]["id"], list[j]["id"]
 	}
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
 	for i := 0; i < len(list); i++ {
-		_, err = mysqlConn.TxUpdate(mysql.Statement, "update bms_menu set sort = ? where id = ?", i, list[i]["id"])
+		_, err = tx.Update("update bms_menu set sort = ? where id = ?", i, list[i]["id"])
 		if err != nil {
 			break
 		}
 	}
 	if err != nil {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		log.Println("change sort fail:", err)
 		return false
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return true
 }
 

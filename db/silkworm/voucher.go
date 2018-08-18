@@ -106,10 +106,14 @@ func GetVoucherByUserCount(uid string) (string, error) {
 func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool {
 	mysqlConn := common.GetMysqlConn()
 	rs := true
-	mysqlConn.TxBegin()
-	_, err := mysqlConn.TxInsert(mysql.Statement, "insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,createtime = ?,updatetime = ?", vendorid, uid, content, 0, nowTime, nowTime)
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
+	_, err = tx.Insert("insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,createtime = ?,updatetime = ?", vendorid, uid, content, 0, nowTime, nowTime)
 	for i := 0; i < len(idList); i++ {
-		a, err := mysqlConn.TxDelete(mysql.Statement, "delete from usersw where id = ?", idList[i])
+		a, err := tx.Delete("delete from usersw where id = ?", idList[i])
 		if err != nil || a == 0 {
 			log.Println(err)
 			rs = false
@@ -117,10 +121,10 @@ func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool
 		}
 	}
 	if !rs || err != nil {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return false
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return rs
 }
 
@@ -128,11 +132,14 @@ func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool
 func BatchVoucher(ulist []map[string]string, nowTime, startDay, endDay, content string) bool {
 	mysqlConn := common.GetMysqlConn()
 	rs := true
-	mysqlConn.TxBegin()
-	var err error
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
 	var a int64
 	for i := 0; i < len(ulist); i++ {
-		a, err = mysqlConn.TxInsert(mysql.Statement, "insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,startday = ?,endday = ?,vtype = ?,createtime = ?,updatetime = ?",
+		a, err = tx.Insert("insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,startday = ?,endday = ?,vtype = ?,createtime = ?,updatetime = ?",
 			ulist[i]["vid"], ulist[i]["id"], content, 0, startDay, endDay, 1, nowTime, nowTime)
 		if err != nil || a == 0 {
 			log.Println(err)
@@ -142,10 +149,10 @@ func BatchVoucher(ulist []map[string]string, nowTime, startDay, endDay, content 
 		a = 0
 	}
 	if !rs || err != nil {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return false
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return rs
 }
 

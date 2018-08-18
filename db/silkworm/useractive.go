@@ -134,11 +134,15 @@ func GetUserActiveCount(vid string) (string, error) {
 // UpdateHealthActive 用户蚕宝宝健康值下降动态
 func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTime string) bool {
 	mysqlConn := common.GetMysqlConn()
-	mysqlConn.TxBegin()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
 	commit := true
 	for i := 0; i < len(*updateListIndex); i++ {
 		content := fmt.Sprintf("%s%s", (*list)[(*updateListIndex)[i]]["name"], ActiveStrList[ActiveSubHealth])
-		_, err := mysqlConn.TxInsert(mysql.Statement, "insert into useractive set type = ?,uname = ?,uid = ?,itemname = ?,itemid = ?,content = ?,createtime = ?",
+		_, err := tx.Insert("insert into useractive set type = ?,uname = ?,uid = ?,itemname = ?,itemid = ?,content = ?,createtime = ?",
 			ActiveList[ActiveSubHealth], (*list)[(*updateListIndex)[i]]["name"], (*list)[(*updateListIndex)[i]]["uid"], "", "0", content, nowTime)
 		if err != nil {
 			log.Println(err)
@@ -147,9 +151,9 @@ func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTi
 		}
 	}
 	if !commit {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 	} else {
-		mysqlConn.TxCommit()
+		tx.Commit()
 	}
 	return commit
 }

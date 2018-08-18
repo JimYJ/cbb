@@ -87,6 +87,14 @@ func FriendList(c *gin.Context) {
 	}
 	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
 	list, _ := silkworm.GetFriendList(openid, vid, paginaSQL)
+	for i := 0; i < len(list); i++ {
+		rs := silkworm.GetUserLeafUntakeCountByID(list[i]["id"])
+		if rs > 0 {
+			list[i]["untake"] = "1"
+		} else {
+			list[i]["untake"] = "0"
+		}
+	}
 	c.JSON(200, gin.H{
 		"msg":       "success",
 		"list":      list,

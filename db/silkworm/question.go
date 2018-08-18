@@ -58,8 +58,12 @@ func DelOptions(id string) (int64, error) {
 func AddOptions(qid, content, nowTime string, answer bool) bool {
 	mysqlConn := common.GetMysqlConn()
 	var a int
-	mysqlConn.TxBegin()
-	oldanswer, err4 := mysqlConn.TxGetVal(mysql.Statement, "select answer from question where id = ?", qid)
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
+	oldanswer, err4 := tx.GetVal("select answer from question where id = ?", qid)
 	if err4 != nil {
 		log.Println(err4)
 	}
@@ -67,10 +71,10 @@ func AddOptions(qid, content, nowTime string, answer bool) bool {
 	if answer {
 		a = 1
 		var err, err2, err3 error
-		id, err := mysqlConn.TxInsert(mysql.Statement, "insert into options set qid = ?,content = ?,answer = ?,createtime = ?,updatetime = ?", qid, content, a, nowTime, nowTime)
-		_, err2 = mysqlConn.TxUpdate(mysql.Statement, "update question set answer = ?,updatetime = ? where id = ?", id, nowTime, qid)
+		id, err := tx.Insert("insert into options set qid = ?,content = ?,answer = ?,createtime = ?,updatetime = ?", qid, content, a, nowTime, nowTime)
+		_, err2 = tx.Update("update question set answer = ?,updatetime = ? where id = ?", id, nowTime, qid)
 		if oldanswer != "" {
-			_, err3 = mysqlConn.TxUpdate(mysql.Statement, "update options set answer = ?,updatetime = ? where id = ?", 0, nowTime, oldanswer)
+			_, err3 = tx.Update("update options set answer = ?,updatetime = ? where id = ?", 0, nowTime, oldanswer)
 		}
 		if err != nil || err2 != nil || err3 != nil {
 			log.Println(err, err2, err3)
@@ -78,16 +82,16 @@ func AddOptions(qid, content, nowTime string, answer bool) bool {
 		}
 	} else {
 		a = 0
-		_, err := mysqlConn.TxInsert(mysql.Statement, "insert into options set qid = ?,content = ?,answer = ?,createtime = ?,updatetime = ?", qid, content, a, nowTime, nowTime)
+		_, err := tx.Insert("insert into options set qid = ?,content = ?,answer = ?,createtime = ?,updatetime = ?", qid, content, a, nowTime, nowTime)
 		if err != nil {
 			log.Println(err)
 			commit = false
 		}
 	}
 	if !commit {
-		mysqlConn.TxRollback()
+		tx.Rollback()
 	} else {
-		mysqlConn.TxCommit()
+		tx.Commit()
 	}
 	return commit
 }
@@ -97,24 +101,28 @@ func EditOptions(content, nowTime, id, qid string, answer bool) bool {
 	mysqlConn := common.GetMysqlConn()
 	var a int
 	var err, err2, err3 error
-	mysqlConn.TxBegin()
-	oldanswer, _ := mysqlConn.TxGetVal(mysql.Statement, "select answer from question where id = ?", qid)
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		log.Println("begin tx fail", err)
+		return false
+	}
+	oldanswer, _ := tx.GetVal("select answer from question where id = ?", qid)
 	if answer {
 		a = 1
-		_, err = mysqlConn.TxUpdate(mysql.Statement, "update question set answer = ?,updatetime = ? where id = ?", id, nowTime, qid)
+		_, err = tx.Update("update question set answer = ?,updatetime = ? where id = ?", id, nowTime, qid)
 	} else {
 		a = 0
 	}
-	_, err2 = mysqlConn.TxUpdate(mysql.Statement, "update options set content = ?,answer = ?,updatetime = ? where id = ?", content, a, nowTime, id)
+	_, err2 = tx.Update("update options set content = ?,answer = ?,updatetime = ? where id = ?", content, a, nowTime, id)
 	if oldanswer != "" {
-		_, err3 = mysqlConn.TxUpdate(mysql.Statement, "update options set answer = ?,updatetime = ? where id = ?", 0, nowTime, oldanswer)
+		_, err3 = tx.Update("update options set answer = ?,updatetime = ? where id = ?", 0, nowTime, oldanswer)
 	}
 	if err != nil || err2 != nil || err3 != nil {
 		log.Println(err, err2, err3)
-		mysqlConn.TxRollback()
+		tx.Rollback()
 		return false
 	}
-	mysqlConn.TxCommit()
+	tx.Commit()
 	return true
 }
 
