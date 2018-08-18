@@ -99,7 +99,6 @@ func TakeLeaf(c *gin.Context) {
 		middleware.RespondErr(500, common.Err500DBrequest, c)
 		return
 	}
-	log.Println(rs)
 	if rs > 0 {
 		uinfo, _ := silkworm.GetUID(openid)
 		uid := uinfo["id"]
