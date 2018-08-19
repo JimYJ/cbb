@@ -89,7 +89,7 @@ func FriendList(c *gin.Context) {
 	list, _ := silkworm.GetFriendList(openid, vid, paginaSQL)
 	for i := 0; i < len(list); i++ {
 		rs := silkworm.GetUserLeafUntakeCountByID(list[i]["id"])
-		if rs > 0 {
+		if rs > 3 {
 			list[i]["untake"] = "1"
 		} else {
 			list[i]["untake"] = "0"
@@ -368,6 +368,14 @@ func BillBoard(c *gin.Context) {
 	}
 	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
 	list, err := silkworm.BillBoard(paginaSQL)
+	for i := 0; i < len(list); i++ {
+		rs := silkworm.GetUserLeafUntakeCountByID(list[i]["id"])
+		if rs > 3 {
+			list[i]["untake"] = "1"
+		} else {
+			list[i]["untake"] = "0"
+		}
+	}
 	if err != nil {
 		log.Println(err)
 		middleware.RespondErr(500, common.Err500DBrequest, c)
