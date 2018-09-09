@@ -21,11 +21,17 @@ var (
 )
 
 // Start 转跳微信授权页
-func (w *WeChat) Start() string {
+func (w *WeChat) Start(p string) string {
 	w.appID = appID
 	w.appSecret = appSecret
 	redirectURI := fmt.Sprintf("%s/wx/getuinfo", common.AppPath)
-	return fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=STATE#wechat_redirect", w.appID, redirectURI, "snsapi_userinfo")
+	var state string
+	if len(p) > 0 {
+		state = p
+	} else {
+		state = "STATE"
+	}
+	return fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s#wechat_redirect", w.appID, redirectURI, "snsapi_userinfo", state)
 }
 
 //GetOpenID 获取公众号OPENID

@@ -76,6 +76,10 @@ func API() {
 	api.POST("/voucher", silkworm.UserVoucher)
 	// 用户兑换券
 	api.POST("/exchangegoods", silkworm.ExchangeGoods)
+	// 获取邀请链接
+	api.POST("/invitelink", silkworm.GetUserInviteLink)
+	// 邀请记录
+	api.POST("/invitelog", silkworm.GetUserAwardLog)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
 	router.Run(":845")
 }

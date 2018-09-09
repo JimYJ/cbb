@@ -105,7 +105,7 @@ func GetUserName(id string) (string, error) {
 // GetFriendList 获取好友列表
 func GetFriendList(openid, vid, paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select id,name,avatar,level from user where vid = ? and openid != ? order by level desc %s", paginaSQL)
+	sql := fmt.Sprintf("select user.id,user.name,avatar,user.level,exp from user LEFT JOIN usersw ON uid = user.id where vid = ? and openid != ? and hatch = 0 order by level desc,exp desc %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql, vid, openid)
 }
 
@@ -179,7 +179,7 @@ func Signed(openid, signdate, lastsigndate, loginip, logintime, updatetime strin
 // BillBoard 全国排行榜
 func BillBoard(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select id,name,avatar,treelevel,level from user ORDER BY level desc %s", paginaSQL)
+	sql := fmt.Sprintf("select user.id,user.name,avatar,treelevel,user.level,exp from user LEFT JOIN usersw ON uid = user.id AND usersw.hatch = 0 ORDER BY level desc,exp desc %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 
@@ -222,4 +222,39 @@ func GetUserForAreaVendor(province, city string) ([]map[string]string, error) {
 		return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and `user`.id is not NULL", province)
 	}
 	return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and city = ? and `user`.id is not NULL", province, city)
+}
+
+// UserInviteAwardLog 发放邀请用户奖励记录
+func UserInviteAwardLog(uid, iuid, itemid, num, nowTime string) error {
+	mysqlConn := common.GetMysqlConn()
+	_, err := mysqlConn.Insert(mysql.Statement, "INSERT INTO invitelogs SET uid = ?,iuid = ?,itemid = ?,num = ?,createtime = ?", uid, iuid, itemid, num, nowTime)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetUserAwardLog 获取奖励记录
+func GetUserAwardLog(uid string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select invitelogs.id,user.name as uname,item.name as itemname,num,invitelogs.createtime from invitelogs left join user on iuid = user.id left join item on itemid = item.id where uid = ? and `read` = ?", uid, 0)
+}
+
+// ReadAwardLog 标记记录已读
+func ReadAwardLog(list []map[string]string) error {
+	mysqlConn := common.GetMysqlConn()
+	tx, _ := mysqlConn.Begin()
+	var err error
+	for _, v := range list {
+		_, err = tx.Update("update invitelogs set `read` = ? where id = ?", 1, v["id"])
+		if err != nil {
+			break
+		}
+	}
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }

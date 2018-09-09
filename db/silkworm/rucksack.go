@@ -180,3 +180,35 @@ func SproutLeaf(itemid, uid, nowTime, nowDate string, sproutleafs, growthhours i
 	tx.Commit()
 	return commit
 }
+
+// UserInviteAward 发放用户奖励
+func UserInviteAward(uid, itemid, num, nowTime string) error {
+	mysqlConn := common.GetMysqlConn()
+	tx, err := mysqlConn.Begin()
+	if err != nil {
+		return err
+	}
+	numI, err := strconv.Atoi(num)
+	if err != nil {
+		return err
+	}
+	var itemtype int
+	if itemid == "1" {
+		itemtype = 0
+	} else {
+		itemtype = 1
+	}
+	for i := 0; i < numI; i++ {
+		_, err = tx.Insert("insert into rucksack set itemid = ?,uid = ?,itemtype = ?,swtype = ?,updatetime = ?,createtime = ?,take = ?",
+			itemid, uid, itemtype, 0, nowTime, nowTime, 1)
+		if err != nil {
+			break
+		}
+	}
+	if err != nil {
+		tx.Rollback()
+	} else {
+		tx.Commit()
+	}
+	return nil
+}

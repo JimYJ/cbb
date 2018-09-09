@@ -191,4 +191,9 @@ func Web() {
 	bms.GET("/signed", middleware.CheckUserMenu("/signed"), silkworm.Signed)
 	// 编辑签到规则
 	bms.POST("/editsigned", silkworm.EditSigned)
+
+	// 签到规则
+	bms.GET("/inviteaward", middleware.CheckUserMenu("/inviteaward"), silkworm.AwardItem)
+	// 编辑签到规则
+	bms.POST("/editinvite", silkworm.EditAwardItem)
 }

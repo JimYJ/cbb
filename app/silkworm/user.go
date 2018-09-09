@@ -421,7 +421,7 @@ func BindVendor(c *gin.Context) {
 // CheckUserIntroPage 确认用户是否看过引导页
 func CheckUserIntroPage(c *gin.Context) {
 	openid := c.PostForm("openid")
-	if openid == "" {
+	if len(openid) == 0 {
 		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
 		return
 	}
@@ -445,4 +445,69 @@ func CheckUserIntroPage(c *gin.Context) {
 			"rs":  true,
 		})
 	}
+}
+
+// GetUserInviteLink 生成邀请链接
+func GetUserInviteLink(c *gin.Context) {
+	openid := c.PostForm("openid")
+	if len(openid) == 0 {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	uinfo, err := silkworm.GetUID(openid)
+	if err != nil {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	id := uinfo["id"]
+	idint64, _ := strconv.ParseInt(id, 10, 64)
+	hashid := common.GetHashID(idint64)
+	link := fmt.Sprintf("%s%s?p=%s", common.AppPath, "/wx/start", hashid)
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"link": link,
+	})
+}
+
+// HandleInviteAward 处理用户邀请奖励
+func HandleInviteAward(state, nowTime string, iuid int64) {
+	if state == "STATE" {
+		return
+	}
+	uid, err := common.GetIDByHashID(state)
+	if err != nil {
+		log.Println("decode hashid error:", err)
+		return
+	}
+	awardItem, _ := silkworm.AwardItemList()
+	err = silkworm.UserInviteAward(strconv.FormatInt(uid[0], 10), awardItem[0]["itemid"], awardItem[0]["num"], nowTime)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = silkworm.UserInviteAwardLog(strconv.FormatInt(uid[0], 10), strconv.FormatInt(iuid, 10), awardItem[0]["itemid"], awardItem[0]["num"], nowTime)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+// GetUserAwardLog 获取奖励记录
+func GetUserAwardLog(c *gin.Context) {
+	openid := c.PostForm("openid")
+	if len(openid) == 0 {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	uinfo, err := silkworm.GetUID(openid)
+	if err != nil {
+		middleware.RespondErr(common.HTTPParamErr, common.Err402Param, c)
+		return
+	}
+	id := uinfo["id"]
+	list, _ := silkworm.GetUserAwardLog(id)
+	go silkworm.ReadAwardLog(list)
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"list": list,
+	})
 }

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/speps/go-hashids"
 	"io"
 	"log"
 	"math"
@@ -22,7 +23,10 @@ var (
 	loginlist = "LoginList"
 	secure    = false // cookie 是否只在HTTPS中使用
 	// Sysmenu 菜单缓存KEY
-	Sysmenu = "SysMenu"
+	Sysmenu        = "SysMenu"
+	hashIDSalt     = "64becc3c23843942b1040ffd4743d1368d988ddf046d17d448a6e199c02c3044b425a680112b399d4dbe9b35b7ccc989"
+	hashIDAlphabet = "abcdefghijklmnopqrstuvwxyz"
+	hashIDLen      = 10
 )
 
 // SetCookie 设置COOKIE
@@ -203,4 +207,26 @@ func FormatTimeGap(s string) string {
 	s = strings.Replace(s, "h", ":", -1)
 	s = strings.Replace(s, "m", ":", -1)
 	return s
+}
+
+// GetHashID 生成HASHID
+func GetHashID(id int64) string {
+	hd := hashids.NewData()
+	hd.Salt = hashIDSalt
+	hd.Alphabet = hashIDAlphabet
+	hd.MinLength = hashIDLen
+	h, _ := hashids.NewWithData(hd)
+	e, _ := h.EncodeInt64([]int64{id})
+	return e
+
+}
+
+// GetIDByHashID 根据HASHID获得ID
+func GetIDByHashID(hashid string) ([]int64, error) {
+	hd := hashids.NewData()
+	hd.Salt = hashIDSalt
+	hd.Alphabet = hashIDAlphabet
+	hd.MinLength = hashIDLen
+	h, _ := hashids.NewWithData(hd)
+	return h.DecodeInt64WithError(hashid)
 }

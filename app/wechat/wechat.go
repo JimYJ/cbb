@@ -19,12 +19,14 @@ var (
 
 // Start 转跳授权
 func Start(c *gin.Context) {
-	c.Redirect(302, wechat.Start())
+	p := c.Query("p")
+	c.Redirect(302, wechat.Start(p))
 }
 
 // GetUserInfo 获得微信用户信息
 func GetUserInfo(c *gin.Context) {
 	code := c.Query("code")
+	state := c.Query("state")
 	openid, _, err := wechat.GetOpenID(code)
 	if err != nil {
 		log.Println(err)
@@ -44,8 +46,9 @@ func GetUserInfo(c *gin.Context) {
 	ip := c.ClientIP()
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	rs, _ := silkworm.CheckUserExist(openid)
+	var iuid int64
 	if rs < 1 {
-		_, err = silkworm.AddUser(avatar, name, ip, openid, nowTime)
+		iuid, err = silkworm.AddUser(avatar, name, ip, openid, nowTime)
 		if err != nil {
 			log.Println(err)
 			middleware.RespondErr(500, common.Err500DBSave, c)
@@ -54,6 +57,7 @@ func GetUserInfo(c *gin.Context) {
 		go sw.NewUserRuck(openid, nowTime)
 	}
 	url := fmt.Sprintf("%s?openid=%s", returnURL, openid)
+	go sw.HandleInviteAward(state, nowTime, iuid)
 	c.Redirect(302, url)
 }
 
