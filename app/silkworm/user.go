@@ -138,10 +138,6 @@ func waterFertilize(c *gin.Context, isWater bool) {
 			middleware.RespondErr(201, common.Err201Limit, c)
 			return
 		}
-		if treewater >= 15 {
-			middleware.RespondErr(202, common.Err202Limit, c)
-			return
-		}
 		if treewater+1 >= 15 && treefertilizer >= 15 {
 			rs := upgradeTree(treeLevel, "1", todayFertilizer, nowDate, fertilizerDate, ip, nowTime, uInfo)
 			if !rs {
@@ -150,10 +146,14 @@ func waterFertilize(c *gin.Context, isWater bool) {
 			}
 			responIntInfoSuccess(c, "newTreeLevel", treeLevel+1)
 		} else {
+			if treewater >= 15 {
+				middleware.RespondErr(202, common.Err202Limit, c)
+				return
+			}
 			_, err := silkworm.UpdateWater(treewater+1, nowDate, ip, nowTime, uInfo["id"])
 			if err != nil {
 				log.Println("water for tree fail:", err)
-				middleware.RespondErr(200, common.Err500DBSave, c)
+				middleware.RespondErr(500, common.Err500DBSave, c)
 				return
 			}
 			responSuccess(c)
@@ -164,10 +164,6 @@ func waterFertilize(c *gin.Context, isWater bool) {
 			middleware.RespondErr(200, common.Err201Limit, c)
 			return
 		}
-		if treefertilizer >= 15 {
-			middleware.RespondErr(202, common.Err202Limit, c)
-			return
-		}
 		if treefertilizer+1 >= 15 && treewater >= 15 {
 			rs := upgradeTree(treeLevel, todayWater, "1", waterDate, nowDate, ip, nowTime, uInfo)
 			if !rs {
@@ -176,6 +172,10 @@ func waterFertilize(c *gin.Context, isWater bool) {
 			}
 			responIntInfoSuccess(c, "newTreeLevel", treeLevel+1)
 		} else {
+			if treefertilizer >= 15 {
+				middleware.RespondErr(202, common.Err202Limit, c)
+				return
+			}
 			_, err := silkworm.UpdateFertilizer(treefertilizer+1, nowDate, ip, nowTime, uInfo["id"])
 			if err != nil {
 				log.Println("water for tree fail:", err)

@@ -43,3 +43,38 @@ func UserActive(c *gin.Context) {
 		"list":      list,
 	})
 }
+
+// UserActiveLog 获取重要动态
+func UserActiveLog(c *gin.Context) {
+	pageSize := c.PostForm("pageSize")
+	pageNo := c.PostForm("pageNo")
+	openid := c.PostForm("openid")
+	if len(openid) == 0 {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	uname, err := silkworm.GetUID(openid)
+	if err != nil || len(uname) == 0 {
+		log.Println("get username  fail:", err)
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	totalCount, err := silkworm.GetActiveLogCount(uname["name"])
+	if err != nil {
+		log.Println(err)
+	}
+	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
+	list, err := silkworm.GetActiveLog(paginaSQL, uname["name"])
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(500, common.Err500DBrequest, c)
+		return
+	}
+	c.JSON(200, gin.H{
+		"msg":       "success",
+		"PageTotal": PageTotal,
+		"pageSize":  pageSize,
+		"pageNo":    pageNo,
+		"list":      list,
+	})
+}

@@ -160,14 +160,17 @@ func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTi
 }
 
 // GetActiveLog 获取重要滚动动态
-func GetActiveLog(openid, vid, paginaSQL, username string) ([]map[string]string, error) {
+func GetActiveLog(paginaSQL, username string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = 63 and content LIKE ('%%s%') UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','batchvoucher') order by id desc %s", username, paginaSQL)
-	return mysqlConn.GetResults(mysql.Statement, sql, vid)
+	username = "%" + username + "%"
+	sql := fmt.Sprintf("select * from (select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = 63 and content LIKE ('%s')UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','batchvoucher')) as a ORDER BY id DESC %s", username, paginaSQL)
+	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 
 // GetActiveLogCount 获取重要滚动动态总数
-func GetActiveLogCount(vid string) (string, error) {
+func GetActiveLogCount(username string) (string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetVal(mysql.Statement, "select count(*) from useractive left join user on uid = user.id where user.vid = ?", vid)
+	username = "%" + username + "%"
+	sql := fmt.Sprintf("select count(*) from ((select t1.id from useractive as t1 left join user as t2 on t1.uid = t2.id where t1.uid = 63 and t1.content LIKE ('%s') )union(select t1.id  from useractive as t1 left join user as t2 on t1.uid = t2.id where t1.`type` in ('pairallow','pairend','bebutterfly','batchvoucher'))) as t5", username)
+	return mysqlConn.GetVal(mysql.Statement, sql)
 }

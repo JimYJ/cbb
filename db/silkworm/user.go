@@ -237,7 +237,7 @@ func UserInviteAwardLog(uid, iuid, itemid, num, nowTime string) error {
 // GetUserAwardLog 获取奖励记录
 func GetUserAwardLog(uid string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select invitelogs.id,user.name as uname,item.name as itemname,num,invitelogs.createtime from invitelogs left join user on iuid = user.id left join item on itemid = item.id where uid = ? and `read` = ?", uid, 0)
+	return mysqlConn.GetResults(mysql.Statement, "select invitelogs.id,user.name as uname,item.name as itemname,num,invitelogs.createtime from invitelogs left join user on iuid = user.id left join item on itemid = item.id where uid = ? and `read` = ? order by invitelogs.id desc", uid, 0)
 }
 
 // ReadAwardLog 标记记录已读

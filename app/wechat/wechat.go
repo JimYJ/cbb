@@ -55,9 +55,9 @@ func GetUserInfo(c *gin.Context) {
 			return
 		}
 		go sw.NewUserRuck(openid, nowTime)
+		go sw.HandleInviteAward(state, nowTime, iuid)
 	}
 	url := fmt.Sprintf("%s?openid=%s", returnURL, openid)
-	go sw.HandleInviteAward(state, nowTime, iuid)
 	c.Redirect(302, url)
 }
 
