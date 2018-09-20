@@ -4,6 +4,7 @@ import (
 	"canbaobao/common"
 	log "canbaobao/service/logs"
 	"fmt"
+
 	"github.com/JimYJ/easysql/mysql"
 )
 
@@ -156,4 +157,17 @@ func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTi
 		tx.Commit()
 	}
 	return commit
+}
+
+// GetActiveLog 获取重要滚动动态
+func GetActiveLog(openid, vid, paginaSQL, username string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = 63 and content LIKE ('%%s%') UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','batchvoucher') order by id desc %s", username, paginaSQL)
+	return mysqlConn.GetResults(mysql.Statement, sql, vid)
+}
+
+// GetActiveLogCount 获取重要滚动动态总数
+func GetActiveLogCount(vid string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select count(*) from useractive left join user on uid = user.id where user.vid = ?", vid)
 }
