@@ -161,7 +161,7 @@ func waterFertilize(c *gin.Context, isWater bool) {
 	} else {
 		check := common.CheckLimit(todayFertilizer, fertilizerDate, nowDate, 1)
 		if check == -1 {
-			middleware.RespondErr(200, common.Err201Limit, c)
+			middleware.RespondErr(201, common.Err201Limit, c)
 			return
 		}
 		if treefertilizer+1 >= 15 && treewater >= 15 {

@@ -28,7 +28,7 @@ func HourTimer() {
 		case <-ht.C:
 			//整小时执行
 			log.Println("=========start exec hour task==========")
-			status()
+			// status()
 			sproutLeaf()
 			log.Println("=========end exec hour task==========")
 		}
