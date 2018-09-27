@@ -2,6 +2,7 @@ package silkworm
 
 import (
 	"canbaobao/common"
+
 	"github.com/JimYJ/easysql/mysql"
 )
 
@@ -9,6 +10,12 @@ import (
 func ItemList() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetResults(mysql.Statement, "select id,name,exp,limitday,updatetime from item order by id")
+}
+
+// FeedItemList 获得喂食物品列表
+func FeedItemList() ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,exp,limitday,img from item WHERE types IN (0,1) order by id")
 }
 
 // EditItem 编辑物品

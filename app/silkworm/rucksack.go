@@ -5,9 +5,10 @@ import (
 	"canbaobao/db/silkworm"
 	"canbaobao/route/middleware"
 	log "canbaobao/service/logs"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // UserRucksack 获取用户背包列表
@@ -26,6 +27,37 @@ func UserRucksack(c *gin.Context) {
 	}
 	if err != nil {
 		log.Println(err)
+	}
+	c.JSON(200, gin.H{
+		"msg":  "success",
+		"list": list,
+	})
+}
+
+// UserFeedRucksack 获取用户喂食物品背包列表
+func UserFeedRucksack(c *gin.Context) {
+	openid := c.PostForm("openid")
+	if openid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	ItemList, err := silkworm.FeedItemList()
+	if err != nil {
+		log.Println(err)
+	}
+	list := make([]map[string]string, len(ItemList))
+	for i := 0; i < len(ItemList); i++ {
+		rs, err := silkworm.UserRucksackItemCount(openid, ItemList[i]["id"], true)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		list[i] = make(map[string]string)
+		list[i]["itemid"] = ItemList[i]["id"]
+		list[i]["itemname"] = ItemList[i]["name"]
+		list[i]["itemimg"] = ItemList[i]["img"]
+		list[i]["itemexp"] = ItemList[i]["exp"]
+		list[i]["num"] = rs
 	}
 	c.JSON(200, gin.H{
 		"msg":  "success",

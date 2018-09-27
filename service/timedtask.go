@@ -21,11 +21,12 @@ var (
 // HourTimer 每整点小时定时器
 func HourTimer() {
 	for {
-		// nextHour = time.Now().Local().Add(time.Hour * 6)
+		nextHour = time.Now().Local().Add(time.Hour * 24)
 		nextHour = time.Date(nextHour.Year(), nextHour.Month(), nextHour.Day(), 6, 0, 0, 0, nextHour.Location())
 		ht = time.NewTimer(nextHour.Sub(time.Now().Local()))
 		select {
 		case <-ht.C:
+			log.Println(ht, nextHour.Sub(time.Now().Local()))
 			//整小时执行
 			log.Println("=========start exec hour task==========")
 			// status()

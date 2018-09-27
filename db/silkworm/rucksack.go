@@ -3,8 +3,9 @@ package silkworm
 import (
 	"canbaobao/common"
 	log "canbaobao/service/logs"
-	"github.com/JimYJ/easysql/mysql"
 	"strconv"
+
+	"github.com/JimYJ/easysql/mysql"
 )
 
 // ItemType
@@ -50,6 +51,18 @@ func UserRucksack(openid string, isTake bool) ([]map[string]string, error) {
 		take = 0
 	}
 	return mysqlConn.GetResults(mysql.Statement, "select COUNT(*) as num,itemid from rucksack left join user on uid = user.id where openid = ? and take = ? GROUP BY itemid", openid, take)
+}
+
+// UserRucksackItemCount 获得用户某项背包数量
+func UserRucksackItemCount(openid, itemid string, isTake bool) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	var take int
+	if isTake {
+		take = 1
+	} else {
+		take = 0
+	}
+	return mysqlConn.GetVal(mysql.Statement, "select COUNT(*) as num from rucksack left join user on uid = user.id where itemid = ? AND openid = ? and take = ?", itemid, openid, take)
 }
 
 // UserRucksackCount 用户背包物品数量

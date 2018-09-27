@@ -84,6 +84,8 @@ func API() {
 	api.POST("/invitelink", silkworm.GetUserInviteLink)
 	// 邀请记录
 	api.POST("/invitelog", silkworm.GetUserAwardLog)
+	// 邀请记录
+	api.POST("/feeditem", silkworm.UserFeedRucksack)
 	// router.RunTLS("127.0.0.1:443", sslcert, sslkey)
 	router.Run(":845")
 }
