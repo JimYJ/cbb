@@ -34,6 +34,8 @@ func API() {
 	api.POST("/useractive", silkworm.UserActive)
 	// 获得重要动态
 	api.POST("/impoactive", silkworm.UserActiveLog)
+	// 获得用户动态
+	api.POST("/userselfactive", silkworm.UserSelfActive)
 	// 获得兑换商品列表
 	api.POST("/goodslist", silkworm.GoodsList)
 	// 浇水

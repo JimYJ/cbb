@@ -160,17 +160,31 @@ func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTi
 }
 
 // GetActiveLog 获取重要滚动动态
-func GetActiveLog(paginaSQL, username string) ([]map[string]string, error) {
+func GetActiveLog(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	username = "%" + username + "%"
-	sql := fmt.Sprintf("select * from (select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = 63 and content LIKE ('%s')UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','batchvoucher','voucher')) as a ORDER BY id DESC %s", username, paginaSQL)
+	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','voucher') ORDER BY id DESC %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 
 // GetActiveLogCount 获取重要滚动动态总数
-func GetActiveLogCount(username string) (string, error) {
+func GetActiveLogCount() (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	sql := fmt.Sprintf("select count(*) from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','voucher') ORDER BY useractive.id DESC")
+	return mysqlConn.GetVal(mysql.Statement, sql)
+}
+
+// GetUserSelfActive 获取用户自己的动态
+func GetUserSelfActive(paginaSQL, uid, username string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	username = "%" + username + "%"
-	sql := fmt.Sprintf("select count(*) from ((select t1.id from useractive as t1 left join user as t2 on t1.uid = t2.id where t1.uid = 63 and t1.content LIKE ('%s') )union(select t1.id  from useractive as t1 left join user as t2 on t1.uid = t2.id where t1.`type` in ('pairallow','pairend','bebutterfly','batchvoucher','voucher'))) as t5", username)
-	return mysqlConn.GetVal(mysql.Statement, sql)
+	sql := fmt.Sprintf("select * from (select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = ? UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairreject','stealleaf') and content LIKE ('%s')) as a ORDER BY id DESC %s", username, paginaSQL)
+	return mysqlConn.GetResults(mysql.Statement, sql, uid)
+}
+
+// GetUserSelfActiveCount 获取重要滚动动态总数
+func GetUserSelfActiveCount(username, uid string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	username = "%" + username + "%"
+	sql := fmt.Sprintf("select count(*) from (select useractive.id from useractive left join user on uid = user.id where uid = ? UNION select useractive.id from useractive left join user on uid = user.id where `type` in ('pairallow','pairreject','stealleaf') and content LIKE ('%s') ) as a", username)
+	return mysqlConn.GetVal(mysql.Statement, sql, uid)
 }
