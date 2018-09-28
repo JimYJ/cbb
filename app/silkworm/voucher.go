@@ -7,9 +7,10 @@ import (
 	"canbaobao/db/system"
 	"canbaobao/route/middleware"
 	log "canbaobao/service/logs"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Voucher 兑换券管理
@@ -135,6 +136,12 @@ func ExchangeGoods(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
+	goodsName, err := silkworm.GetGoodsName(goodsid)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
 	uid := uinfo["id"]
 	uname := uinfo["name"]
 	vid := uinfo["vid"]
@@ -162,7 +169,60 @@ func ExchangeGoods(c *gin.Context) {
 		}
 	}
 	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
-	goodsName, _ := silkworm.GetGoodsName(goodsid)
+	rs := silkworm.ExchangeGoods(vid, uid, goodsName, nowTime, idList)
+	if !rs {
+		middleware.RespondErr(500, common.Err500DBSave, c)
+		return
+	}
+	go exchangeGoodsActive(uname, uid, nowTime, goodsName)
+	responSuccess(c)
+}
+
+// ExchangeGoodsII 兑换商品-方案2(生成兑换券)
+func ExchangeGoodsII(c *gin.Context) {
+	openid := c.PostForm("openid")
+	goodsid := c.PostForm("goodsid")
+	if openid == "" || goodsid == "" {
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	uinfo, err := silkworm.GetUID(openid)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	goodsName, err := silkworm.GetGoodsName(goodsid)
+	if err != nil {
+		log.Println(err)
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	uid := uinfo["id"]
+	uname := uinfo["name"]
+	vid := uinfo["vid"]
+	if vid == "" {
+		middleware.RespondErr(412, common.Err412UserNotBind, c)
+		return
+	}
+	goodsRedeemCount, err := silkworm.GetGoodsExchange(goodsid)
+	if err != nil || len(goodsRedeemCount) == 0 {
+		log.Println(err)
+		middleware.RespondErr(402, common.Err402Param, c)
+		return
+	}
+	gRC, _ := strconv.Atoi(goodsRedeemCount)
+	bfList, err := silkworm.GetUserButterflyAllList(uid, goodsRedeemCount)
+	if err != nil || len(bfList) < gRC {
+		// log.Println(err, bfList, gRC)
+		middleware.RespondErr(422, common.Err422NotEnoughExchange, c)
+		return
+	}
+	idList := make([]string, 0)
+	for j := 0; j < len(bfList); j++ {
+		idList = append(idList, bfList[j]["id"])
+	}
+	nowTime := time.Now().Local().Format("2006-01-02 15:04:05")
 	rs := silkworm.ExchangeGoods(vid, uid, goodsName, nowTime, idList)
 	if !rs {
 		middleware.RespondErr(500, common.Err500DBSave, c)

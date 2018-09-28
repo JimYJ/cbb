@@ -78,8 +78,10 @@ func API() {
 	api.POST("/feed", silkworm.Feed)
 	// 用户兑换券
 	api.POST("/voucher", silkworm.UserVoucher)
-	// 用户兑换券
+	// 用户兑换商品
 	api.POST("/exchangegoods", silkworm.ExchangeGoods)
+	// 用户兑换商品=方案2
+	api.POST("/exchangegoods2", silkworm.ExchangeGoodsII)
 	// 获取邀请链接
 	api.POST("/invitelink", silkworm.GetUserInviteLink)
 	// 邀请记录

@@ -129,32 +129,6 @@ func ExchangeGoods(vendorid, uid, content, nowTime string, idList []string) bool
 	return rs
 }
 
-// ExchangeGoodsII 兑换商品-方案2(生成兑换券)
-func ExchangeGoodsII(vendorid, uid, content, nowTime string, idList []string) bool {
-	mysqlConn := common.GetMysqlConn()
-	rs := true
-	tx, err := mysqlConn.Begin()
-	if err != nil {
-		log.Println("begin tx fail", err)
-		return false
-	}
-	_, err = tx.Insert("insert into voucher set vendorid = ?,uid = ?,content = ?,status = ?,createtime = ?,updatetime = ?", vendorid, uid, content, 0, nowTime, nowTime)
-	for i := 0; i < len(idList); i++ {
-		a, err := tx.Delete("delete from usersw where id = ?", idList[i])
-		if err != nil || a == 0 {
-			log.Println(err)
-			rs = false
-			break
-		}
-	}
-	if !rs || err != nil {
-		tx.Rollback()
-		return false
-	}
-	tx.Commit()
-	return rs
-}
-
 // BatchVoucher 批量发放兑换券
 func BatchVoucher(ulist []map[string]string, nowTime, startDay, endDay, content string) bool {
 	mysqlConn := common.GetMysqlConn()

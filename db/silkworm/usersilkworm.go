@@ -4,6 +4,7 @@ import (
 	"canbaobao/common"
 	log "canbaobao/service/logs"
 	"fmt"
+
 	"github.com/JimYJ/easysql/mysql"
 )
 
@@ -183,11 +184,18 @@ func BeButterfly(newExp, name, swid, id, uid, rucksackid, level, loginip, nowTim
 	return true
 }
 
-// GetUserButterflyList 获得用户蝴蝶列表
+// GetUserButterflyList 获得用户可兑换蝴蝶列表-按种类
 func GetUserButterflyList(swid, uid, limit string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	sql := fmt.Sprintf("select id from usersw where swid = ? and uid = ? and hatch = ? and pair = ? limit %s", limit)
 	return mysqlConn.GetResults(mysql.Statement, sql, swid, uid, 1, 0)
+}
+
+// GetUserButterflyAllList 获得用户蝴蝶列表-不限种类
+func GetUserButterflyAllList(uid, limit string) ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	sql := fmt.Sprintf("select id from usersw where uid = ? and hatch = ? and pair = ? limit %s", limit)
+	return mysqlConn.GetResults(mysql.Statement, sql, uid, 1, 0)
 }
 
 // GetSWlist 获取蚕宝宝
