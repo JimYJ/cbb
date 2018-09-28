@@ -9,9 +9,10 @@ import (
 	"canbaobao/service"
 	log "canbaobao/service/logs"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Goods 商品管理
@@ -85,9 +86,14 @@ func EditGoods(c *gin.Context) {
 func handelGoods(c *gin.Context, isEdit bool) {
 	name := c.PostForm("names")
 	content := c.PostForm("content")
+	swcount := c.PostForm("swcount")
 	bigimg := service.UploadRenameImages(c, "goods")
-	// log.Println(bigimg, content)
-	if name == "" || content == "" {
+	// log.Println(bigimg, content,swcount)
+	if len(name) == 0 || len(content) == 0 || len(swcount) == 0 {
+		middleware.RedirectErr("goods", common.AlertError, common.AlertParamsError, c)
+		return
+	}
+	if _, err := strconv.Atoi(swcount); err != nil {
 		middleware.RedirectErr("goods", common.AlertError, common.AlertParamsError, c)
 		return
 	}
@@ -99,7 +105,7 @@ func handelGoods(c *gin.Context, isEdit bool) {
 			middleware.RedirectErr("goods", common.AlertError, common.AlertParamsError, c)
 			return
 		}
-		_, err := silkworm.EditGoods(name, bigimg, content, nowTime, id)
+		_, err := silkworm.EditGoods(name, bigimg, content, swcount, nowTime, id)
 		if err != nil {
 			log.Println(err)
 			middleware.RedirectErr("goods", common.AlertFail, common.AlertSaveFail, c)
@@ -108,7 +114,7 @@ func handelGoods(c *gin.Context, isEdit bool) {
 		c.Redirect(302, "/goods")
 		return
 	}
-	_, err := silkworm.AddGoods(name, bigimg, content, nowTime)
+	_, err := silkworm.AddGoods(name, bigimg, content, swcount, nowTime)
 	if err != nil {
 		log.Println("add goods fail:", err)
 		middleware.RedirectErr("goods", common.AlertFail, common.AlertSaveFail, c)

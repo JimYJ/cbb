@@ -28,6 +28,12 @@
                         <input type="file" class="form-control" placeholder="请选择图片" id="data" name="data">
                     </div>
                     <div class="form-group">
+                        <label for="names" class="form-control-label">
+                            商品兑换条件(方案二)-只限制蝴蝶数量，不限蝴蝶种类:
+                        </label>
+                        <input type="text" class="form-control" placeholder="蝴蝶数量" id="swcount" name="swcount">
+                    </div>
+                    <div class="form-group">
                         <label for="name" class="form-control-label">
                             商品介绍:
                         </label>

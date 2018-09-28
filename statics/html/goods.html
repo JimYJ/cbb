@@ -79,6 +79,9 @@
                                         <th title="content">
                                             兑换条件
                                         </th>
+                                        <th title="swcount">
+                                            兑换条件-方案2(不限种类蝴蝶数量)
+                                        </th>
                                         <th title="createtime">
                                             创建时间
                                         </th>
@@ -107,6 +110,9 @@
                                             {{end}}
                                         </td>
                                         <td>
+                                            {{$v.swcount}}
+                                        </td>
+                                        <td>
                                             {{$v.createtime}}
                                         </td>
                                         <td>
@@ -117,7 +123,7 @@
                                                 data-target="#base">
                                                 <!--data-toggle="modal" data-target="#base"-->删除
                                             </button>
-                                            <button onclick="edit('{{$v.id}}','{{$v.name}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal" data-target="#AddEdit">
+                                            <button onclick="edit('{{$v.id}}','{{$v.name}}','{{$v.swcount}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal" data-target="#AddEdit">
                                                 编辑
                                             </button>
                                         </td>
@@ -177,10 +183,11 @@
                 $("#modalContent").text("你确定要删除 商品 - " + name + "  吗?")
                 $("#deleteit").attr("href", "/delgoods?id=" + id)
             }
-            edit = function (id, names) {
+            edit = function (id, names,swcount) {
                 $("#ModalAddMenuTitle").text("编辑记录")
                 $("#handelAction").attr("action", "/editgoods?id=" + id)
                 $("#name").attr("value", names)
+                $("#swcount").attr("value", swcount)
                 $.ajax({
                     url: "/goodscontent?id=" + id,
                     success: function (rs) {
@@ -193,6 +200,7 @@
                 $("#ModalAddMenuTitle").text("新增记录")
                 $("#handelAction").attr("action", "/addgoods")
                 $("#name").attr("value", "")
+                $("#swcount").attr("value", "")
                 content.val("")
                 editor.txt.html("")
             }

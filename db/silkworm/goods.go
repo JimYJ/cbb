@@ -3,6 +3,7 @@ package silkworm
 import (
 	"canbaobao/common"
 	"fmt"
+
 	"github.com/JimYJ/easysql/mysql"
 )
 
@@ -19,25 +20,25 @@ func GetGoodsName(id string) (string, error) {
 }
 
 // AddGoods 新增商品
-func AddGoods(name, bigimg, content, nowTime string) (int64, error) {
+func AddGoods(name, bigimg, content, swcount, nowTime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.Insert(mysql.Statement, "insert into goods set name = ?,bigimg = ?,content = ?,createtime = ?,updatetime = ?", name, bigimg, content, nowTime, nowTime)
+	return mysqlConn.Insert(mysql.Statement, "insert into goods set name = ?,bigimg = ?,swcount = ?,content = ?,createtime = ?,updatetime = ?", name, bigimg, swcount, content, nowTime, nowTime)
 }
 
 // EditGoods 编辑商品
-func EditGoods(name, bigimg, content, nowTime, id string) (int64, error) {
+func EditGoods(name, bigimg, content, swcount, nowTime, id string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	if bigimg == "" {
-		return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,content = ?,updatetime = ? where id = ?", name, content, nowTime, id)
+		return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,swcount = ?,content = ?,updatetime = ? where id = ?", name, swcount, content, nowTime, id)
 	}
-	return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,bigimg = ?,content = ?,updatetime = ? where id = ?", name, bigimg, content, nowTime, id)
+	return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,bigimg = ?,swcount = ?,content = ?,updatetime = ? where id = ?", name, bigimg, swcount, content, nowTime, id)
 
 }
 
 // GetGoods 获取商品
 func GetGoods() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,bigimg,createtime,updatetime from goods ORDER BY id desc")
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY id desc")
 }
 
 // GetPaginaGoods 获取分页商品
@@ -57,6 +58,12 @@ func GetGoodsCount() (string, error) {
 func GetGoodsContent(id string) (string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetVal(mysql.Statement, "select content from goods where id = ?", id)
+}
+
+// GetGoodsExchange 获取商品兑换方案2-条件
+func GetGoodsExchange(id string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetVal(mysql.Statement, "select swcount from goods where id = ?", id)
 }
 
 // DelGoodsRedeem 删除商品兑换条件
