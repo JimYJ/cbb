@@ -29,7 +29,7 @@ func HourTimer() {
 			log.Println(ht, nextHour.Sub(time.Now().Local()))
 			//整小时执行
 			log.Println("=========start exec hour task==========")
-			// status()
+			status()
 			sproutLeaf()
 			log.Println("=========end exec hour task==========")
 			for i := 0; i < 4; i++ {
@@ -40,7 +40,7 @@ func HourTimer() {
 				case <-ht.C:
 					//整小时执行
 					log.Println("=========start exec hour task==========")
-					// status()
+					status()
 					sproutLeaf()
 					log.Println("=========end exec hour task==========")
 				}
