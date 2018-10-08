@@ -130,7 +130,7 @@ func GetUserActive(openid, vid, paginaSQL string) ([]map[string]string, error) {
 func GetMyActive(paginaSQL, uid, username string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	username = "%" + username + "%"
-	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where user.uid = ? and content LIKE ('%s')) order by id desc %s", username, paginaSQL)
+	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = ? and content LIKE ('%s') order by id desc %s", username, paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql, uid)
 }
 
@@ -146,7 +146,7 @@ func GetUserActiveCount(uid, username string) (string, error) {
 func GetMyActiveCount(uid, username string) (string, error) {
 	mysqlConn := common.GetMysqlConn()
 	username = "%" + username + "%"
-	sql := fmt.Sprintf("select count(*) from useractive where user.uid = ? and content LIKE ('%s')) order by id desc", username)
+	sql := fmt.Sprintf("select count(*) from useractive where uid = ? and content LIKE ('%s') order by id desc", username)
 	return mysqlConn.GetVal(mysql.Statement, sql, uid)
 }
 

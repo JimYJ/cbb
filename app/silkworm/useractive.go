@@ -84,7 +84,7 @@ func UserActive(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
-	totalCount, err := silkworm.GetMyActiveCount(uname["name"], uname["id"])
+	totalCount, err := silkworm.GetMyActiveCount(uname["id"], uname["name"])
 	if err != nil {
 		log.Println(err)
 	}
