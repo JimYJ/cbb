@@ -44,7 +44,7 @@ func GetGoods() ([]map[string]string, error) {
 // GetPaginaGoods 获取分页商品
 func GetPaginaGoods(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select id,name,bigimg,createtime,updatetime from goods ORDER BY id desc %s", paginaSQL)
+	sql := fmt.Sprintf("select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY id desc %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 
