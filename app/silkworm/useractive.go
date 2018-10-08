@@ -84,12 +84,12 @@ func UserActive(c *gin.Context) {
 		middleware.RespondErr(402, common.Err402Param, c)
 		return
 	}
-	totalCount, err := silkworm.GetUserSelfActiveCount(uname["name"], uname["id"])
+	totalCount, err := silkworm.GetMyActiveCount(uname["name"], uname["id"])
 	if err != nil {
 		log.Println(err)
 	}
 	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
-	list, err := silkworm.GetUserSelfActive(paginaSQL, uname["id"], uname["name"])
+	list, err := silkworm.GetMyActive(paginaSQL, uname["id"], uname["name"])
 	if err != nil {
 		log.Println(err)
 		middleware.RespondErr(500, common.Err500DBrequest, c)

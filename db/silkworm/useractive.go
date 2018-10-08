@@ -142,6 +142,14 @@ func GetUserActiveCount(uid, username string) (string, error) {
 	return mysqlConn.GetVal(mysql.Statement, sql, uid)
 }
 
+// GetMyActiveCount 获取用户动态总数
+func GetMyActiveCount(uid, username string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	username = "%" + username + "%"
+	sql := fmt.Sprintf("select count(*) from useractive where user.uid = ? and content LIKE ('%s')) order by id desc", username)
+	return mysqlConn.GetVal(mysql.Statement, sql, uid)
+}
+
 // UpdateHealthActive 用户蚕宝宝健康值下降动态
 func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTime string) bool {
 	mysqlConn := common.GetMysqlConn()
