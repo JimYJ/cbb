@@ -126,10 +126,20 @@ func GetUserActive(openid, vid, paginaSQL string) ([]map[string]string, error) {
 	return mysqlConn.GetResults(mysql.Statement, sql, vid)
 }
 
-// GetUserActiveCount 获取好友动态总数
-func GetUserActiveCount(vid string) (string, error) {
+// GetMyActive 获取用户动态
+func GetMyActive(paginaSQL, uid, username string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetVal(mysql.Statement, "select count(*) from useractive left join user on uid = user.id where user.vid = ?", vid)
+	username = "%" + username + "%"
+	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where user.uid = ? and content LIKE ('%s')) order by id desc %s", username, paginaSQL)
+	return mysqlConn.GetResults(mysql.Statement, sql, uid)
+}
+
+// GetUserActiveCount 获取好友动态总数
+func GetUserActiveCount(uid, username string) (string, error) {
+	mysqlConn := common.GetMysqlConn()
+	username = "%" + username + "%"
+	sql := fmt.Sprintf("select count(*) from useractive where user.uid = ? and content LIKE ('%s')) order by id desc", username)
+	return mysqlConn.GetVal(mysql.Statement, sql, uid)
 }
 
 // UpdateHealthActive 用户蚕宝宝健康值下降动态
