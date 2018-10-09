@@ -38,13 +38,13 @@ func EditGoods(name, bigimg, content, swcount, nowTime, id string) (int64, error
 // GetGoods 获取商品
 func GetGoods() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY id desc")
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY swcount desc")
 }
 
 // GetPaginaGoods 获取分页商品
 func GetPaginaGoods(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY id desc %s", paginaSQL)
+	sql := fmt.Sprintf("select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY swcount desc %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 
