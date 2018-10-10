@@ -8,6 +8,7 @@ import (
 	"canbaobao/route/middleware"
 	"canbaobao/service"
 	log "canbaobao/service/logs"
+	"encoding/base64"
 	"fmt"
 	"strconv"
 	"time"
@@ -228,6 +229,9 @@ func GoodsList(c *gin.Context) {
 	paginaSQL, PageTotal := db.Pagina(pageSize, pageNo, totalCount)
 	list, _ := silkworm.GetPaginaGoods(paginaSQL)
 	newList := common.ChangeMapInterface(list)
+	for i := 0; i < len(newList); i++ {
+		newList[i]["content"] = base64.StdEncoding.EncodeToString([]byte(newList[i]["content"].(string)))
+	}
 	for i := 0; i < len(newList); i++ {
 		sublist, _ := silkworm.GetGoodsRedeem(list[i]["id"])
 		newList[i]["redeemlist"] = sublist
