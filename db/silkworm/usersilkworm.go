@@ -46,15 +46,15 @@ func Enable(id string) (int64, error) {
 }
 
 // ApplyPair 申请配对
-func ApplyPair(id, pairid, uid, pairuid string) bool {
+func ApplyPair(id, pairid, uid, pairuid string, pairtime int64) bool {
 	mysqlConn := common.GetMysqlConn()
 	tx, err := mysqlConn.Begin()
 	if err != nil {
 		log.Println("begin tx fail", err)
 		return false
 	}
-	_, err = tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 1, pairid, pairuid, id)
-	_, err2 := tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, 0, 0, id, uid, pairid)
+	_, err = tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, pairtime, 1, pairid, pairuid, id)
+	_, err2 := tx.Update("update usersw set pair = ?,pairtime = ?,pairsrc = ?,pairid = ?,pairuid = ? where id = ?", 1, pairtime, 0, id, uid, pairid)
 	if err != nil || err2 != nil {
 		log.Println(err, err2)
 		tx.Rollback()

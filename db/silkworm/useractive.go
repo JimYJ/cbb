@@ -35,6 +35,8 @@ const (
 	ActiveSproutLeaf
 	ActiveSubHealth
 	ActiveBatchVoucher
+	ActivePairTimeout
+	ActiveInviteUser
 )
 
 // UserActiveList
@@ -65,6 +67,8 @@ var (
 		"sproutleaf",
 		"subhealth",
 		"batchvoucher",
+		"pairtimeout",
+		"inviteuser",
 	}
 	ActiveStrList = []string{
 		"的桑树升到了 %s 级。",
@@ -92,6 +96,8 @@ var (
 		"的桑树长出了 %s 片桑叶。",
 		"用户昨天没有喂蚕宝宝，蚕宝宝健康值下降 10% 。",
 		"获得了平台赠送的兑换券，有效期为:%s，可兑换物品:",
+		"发起的蝴蝶配对申请超过了24小时，自动结束。",
+		"邀请了 %s 成为会员，并获得了奖励:",
 	}
 )
 
@@ -108,7 +114,7 @@ func SaveUserActive(types int, uname, uid, itemname, itemid, nowTime, moreInfo s
 		}
 		content = fmt.Sprintf("%s%s", uname, str)
 	} else {
-		if types == ActiveSign || types == ActivePairEnd || types == ActiveFirstSWUp || types == ActiveBatchVoucher {
+		if types == ActiveSign || types == ActivePairEnd || types == ActiveFirstSWUp || types == ActiveBatchVoucher || types == ActiveInviteUser {
 			str = fmt.Sprintf(ActiveStrList[types], moreInfo)
 		} else {
 			str = ActiveStrList[types]
@@ -180,14 +186,14 @@ func UpdateHealthActive(updateListIndex *[]int, list *[]map[string]string, nowTi
 // GetActiveLog 获取重要滚动动态
 func GetActiveLog(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','voucher') ORDER BY id DESC %s", paginaSQL)
+	sql := fmt.Sprintf("select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','voucher','inviteuser') ORDER BY id DESC %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 
 // GetActiveLogCount 获取重要滚动动态总数
 func GetActiveLogCount() (string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select count(*) from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','voucher') ORDER BY useractive.id DESC")
+	sql := fmt.Sprintf("select count(*) from useractive left join user on uid = user.id where `type` in ('pairallow','pairend','bebutterfly','voucher','inviteuser') ORDER BY useractive.id DESC")
 	return mysqlConn.GetVal(mysql.Statement, sql)
 }
 
@@ -195,7 +201,7 @@ func GetActiveLogCount() (string, error) {
 func GetUserSelfActive(paginaSQL, uid, username string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	username = "%" + username + "%"
-	sql := fmt.Sprintf("select * from (select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = ? UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairreject','stealleaf') and content LIKE ('%s')) as a ORDER BY id DESC %s", username, paginaSQL)
+	sql := fmt.Sprintf("select * from (select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where uid = ? UNION select useractive.id,user.name as username,user.avatar,useractive.content,useractive.createtime from useractive left join user on uid = user.id where `type` in ('pairallow','pairreject','stealleaf','inviteuser') and content LIKE ('%s')) as a ORDER BY id DESC %s", username, paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql, uid)
 }
 
@@ -203,6 +209,6 @@ func GetUserSelfActive(paginaSQL, uid, username string) ([]map[string]string, er
 func GetUserSelfActiveCount(username, uid string) (string, error) {
 	mysqlConn := common.GetMysqlConn()
 	username = "%" + username + "%"
-	sql := fmt.Sprintf("select count(*) from (select useractive.id from useractive left join user on uid = user.id where uid = ? UNION select useractive.id from useractive left join user on uid = user.id where `type` in ('pairallow','pairreject','stealleaf') and content LIKE ('%s') ) as a", username)
+	sql := fmt.Sprintf("select count(*) from (select useractive.id from useractive left join user on uid = user.id where uid = ? UNION select useractive.id from useractive left join user on uid = user.id where `type` in ('pairallow','pairreject','stealleaf','inviteuser') and content LIKE ('%s') ) as a", username)
 	return mysqlConn.GetVal(mysql.Statement, sql, uid)
 }

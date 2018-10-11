@@ -162,10 +162,28 @@ func userSilkwormList(c *gin.Context, uid string) {
 				list[i]["pairuname"] = ""
 			}
 		} else if list[i]["pair"] == "1" {
-			list[i]["pairstatus"] = "配对申请中"
-			list[i]["pairtime"] = "0"
-			uinfo, _ := silkworm.GetUinfoByID(list[i]["pairuid"])
-			list[i]["pairuname"] = uinfo["name"]
+			pairtime, _ := strconv.ParseInt(list[i]["pairtime"], 10, 64)
+			if pairtime-nowUnix > 0 {
+				list[i]["pairstatus"] = "配对申请中"
+				list[i]["pairtime"] = "0"
+				uinfo, _ := silkworm.GetUinfoByID(list[i]["pairuid"])
+				list[i]["pairuname"] = uinfo["name"]
+			} else {
+				//处理超时结束配对
+				silkworm.EndPair(list[i]["id"], list[i]["pairid"])
+				list[i]["pairtime"] = "0"
+				list[i]["pair"] = "0"
+				list[i]["pairstatus"] = "未配对"
+				list[i]["pairid"] = "0"
+				list[i]["pairsrc"] = "0"
+				var puid string
+				if list[i]["pairsrc"] == "0" {
+					puid = list[i]["pairuid"] //记录动态的用户ID
+				} else {
+					puid = uid //记录动态的用户ID
+				}
+				userActiveForPairTimeout(puid, nowTime)
+			}
 		} else if list[i]["pair"] == "2" {
 			pairtime, _ := strconv.ParseInt(list[i]["pairtime"], 10, 64)
 			list[i]["pairuname"] = ""
@@ -289,7 +307,9 @@ func ApplyPair(c *gin.Context) {
 		middleware.RespondErr(206, common.Err206Limit, c)
 		return
 	}
-	rs := silkworm.ApplyPair(id, pairid, uid, pairuid)
+	pairhous, _ := time.ParseDuration("24h")
+	pairtime := time.Now().Local().Add(pairhous).Unix()
+	rs := silkworm.ApplyPair(id, pairid, uid, pairuid, pairtime)
 	if !rs {
 		middleware.RespondErr(500, common.Err500DBSave, c)
 		return
@@ -609,5 +629,13 @@ func beButterflyActive(uname, uid, nowTime, moreInfo string) {
 	_, err := silkworm.SaveUserActive(silkworm.ActiveBeButterfly, uname, uid, "", "0", nowTime, moreInfo)
 	if err != nil {
 		log.Println("Save User Active Fail:", err)
+	}
+}
+
+func userActiveForPairTimeout(uid, nowTime string) {
+	uinfo, _ := silkworm.GetUinfoByID(uid)
+	_, err := silkworm.SaveUserActive(silkworm.ActivePairTimeout, uinfo["name"], uid, "", "0", nowTime, "")
+	if err != nil {
+		log.Println("Save Pair User Active Fail", err)
 	}
 }

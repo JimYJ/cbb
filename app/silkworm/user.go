@@ -480,14 +480,23 @@ func HandleInviteAward(state, nowTime string, iuid int64) {
 		return
 	}
 	awardItem, _ := silkworm.AwardItemList()
-	err = silkworm.UserInviteAward(strconv.FormatInt(uid[0], 10), awardItem[0]["itemid"], awardItem[0]["num"], nowTime)
+	uidStr := strconv.FormatInt(uid[0], 10)
+	iuidStr := strconv.FormatInt(uid[0], 10)
+	err = silkworm.UserInviteAward(uidStr, awardItem[0]["itemid"], awardItem[0]["num"], nowTime)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = silkworm.UserInviteAwardLog(strconv.FormatInt(uid[0], 10), strconv.FormatInt(iuid, 10), awardItem[0]["itemid"], awardItem[0]["num"], nowTime)
+	err = silkworm.UserInviteAwardLog(strconv.FormatInt(uid[0], 10), iuidStr, awardItem[0]["itemid"], awardItem[0]["num"], nowTime)
 	if err != nil {
 		log.Println(err)
+	}
+	uinfo, _ := silkworm.GetUinfoByID(uidStr)
+	iuinfo, _ := silkworm.GetUinfoByID(iuidStr)
+	awardItemStr := fmt.Sprintf("%s*%s", awardItem[0]["name"], awardItem[0]["num"])
+	_, err = silkworm.SaveUserActive(silkworm.ActiveInviteUser, uinfo["name"], uidStr, awardItemStr, awardItem[0]["itemid"], nowTime, iuinfo["name"])
+	if err != nil {
+		log.Println("Save Invite User Active Fail", err)
 	}
 }
 
