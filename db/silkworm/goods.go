@@ -20,31 +20,31 @@ func GetGoodsName(id string) (string, error) {
 }
 
 // AddGoods 新增商品
-func AddGoods(name, bigimg, content, swcount, nowTime string) (int64, error) {
+func AddGoods(name, bigimg, content, swcount, nums, price, spec, nowTime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.Insert(mysql.Statement, "insert into goods set name = ?,bigimg = ?,swcount = ?,content = ?,createtime = ?,updatetime = ?", name, bigimg, swcount, content, nowTime, nowTime)
+	return mysqlConn.Insert(mysql.Statement, "insert into goods set name = ?,bigimg = ?,swcount = ?,content = ?,nums = ?,price = ?,spec = ?,createtime = ?,updatetime = ?", name, bigimg, swcount, content, nums, price, spec, nowTime, nowTime)
 }
 
 // EditGoods 编辑商品
-func EditGoods(name, bigimg, content, swcount, nowTime, id string) (int64, error) {
+func EditGoods(name, bigimg, content, swcount, nums, price, spec, nowTime, id string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
 	if bigimg == "" {
-		return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,swcount = ?,content = ?,updatetime = ? where id = ?", name, swcount, content, nowTime, id)
+		return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,swcount = ?,content = ?,nums = ?,price = ?,spec = ?,updatetime = ? where id = ?", name, swcount, content, nums, price, spec, nowTime, id)
 	}
-	return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,bigimg = ?,swcount = ?,content = ?,updatetime = ? where id = ?", name, bigimg, swcount, content, nowTime, id)
+	return mysqlConn.Insert(mysql.Statement, "update goods set name = ?,bigimg = ?,swcount = ?,content = ?,nums = ?,price = ?,spec = ?,updatetime = ? where id = ?", name, bigimg, swcount, content, nums, price, spec, nowTime, id)
 
 }
 
 // GetGoods 获取商品
 func GetGoods() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "select id,name,bigimg,swcount,createtime,updatetime from goods ORDER BY swcount")
+	return mysqlConn.GetResults(mysql.Statement, "select id,name,bigimg,swcount,nums,price,spec,createtime,updatetime from goods ORDER BY swcount")
 }
 
 // GetPaginaGoods 获取分页商品
 func GetPaginaGoods(paginaSQL string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	sql := fmt.Sprintf("select id,name,bigimg,swcount,content,createtime,updatetime from goods ORDER BY swcount %s", paginaSQL)
+	sql := fmt.Sprintf("select id,name,bigimg,swcount,content,nums,price,spec,createtime,updatetime from goods ORDER BY swcount %s", paginaSQL)
 	return mysqlConn.GetResults(mysql.Statement, sql)
 }
 

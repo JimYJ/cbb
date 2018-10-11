@@ -88,9 +88,12 @@ func handelGoods(c *gin.Context, isEdit bool) {
 	name := c.PostForm("names")
 	content := c.PostForm("content")
 	swcount := c.PostForm("swcount")
+	nums := c.PostForm("nums")
+	price := c.PostForm("price")
+	spec := c.PostForm("spec")
 	bigimg := service.UploadRenameImages(c, "goods")
 	// log.Println(bigimg, content,swcount)
-	if len(name) == 0 || len(content) == 0 || len(swcount) == 0 {
+	if len(name) == 0 || len(content) == 0 || len(swcount) == 0 || len(nums) == 0 || len(price) == 0 || len(spec) == 0 {
 		middleware.RedirectErr("goods", common.AlertError, common.AlertParamsError, c)
 		return
 	}
@@ -106,7 +109,7 @@ func handelGoods(c *gin.Context, isEdit bool) {
 			middleware.RedirectErr("goods", common.AlertError, common.AlertParamsError, c)
 			return
 		}
-		_, err := silkworm.EditGoods(name, bigimg, content, swcount, nowTime, id)
+		_, err := silkworm.EditGoods(name, bigimg, content, swcount, nums, price, spec, nowTime, id)
 		if err != nil {
 			log.Println(err)
 			middleware.RedirectErr("goods", common.AlertFail, common.AlertSaveFail, c)
@@ -115,7 +118,7 @@ func handelGoods(c *gin.Context, isEdit bool) {
 		c.Redirect(302, "/goods")
 		return
 	}
-	_, err := silkworm.AddGoods(name, bigimg, content, swcount, nowTime)
+	_, err := silkworm.AddGoods(name, bigimg, content, swcount, nums, price, spec, nowTime)
 	if err != nil {
 		log.Println("add goods fail:", err)
 		middleware.RedirectErr("goods", common.AlertFail, common.AlertSaveFail, c)

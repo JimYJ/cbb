@@ -79,6 +79,15 @@
                                         <th title="content">
                                             兑换条件
                                         </th>
+                                        <th title="content">
+                                            商品数量
+                                        </th>
+                                        <th title="content">
+                                            商品价格
+                                        </th>
+                                        <th title="content">
+                                            商品规格
+                                        </th>
                                         <th title="swcount">
                                             兑换条件-方案2(不限种类蝴蝶数量)
                                         </th>
@@ -110,6 +119,15 @@
                                             {{end}}
                                         </td>
                                         <td>
+                                            {{$v.nums}}
+                                        </td>
+                                        <td>
+                                            {{$v.price}}
+                                        </td>
+                                        <td>
+                                            {{$v.spec}}
+                                        </td>
+                                        <td>
                                             {{$v.swcount}}
                                         </td>
                                         <td>
@@ -123,7 +141,8 @@
                                                 data-target="#base">
                                                 <!--data-toggle="modal" data-target="#base"-->删除
                                             </button>
-                                            <button onclick="edit('{{$v.id}}','{{$v.name}}','{{$v.swcount}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal" data-target="#AddEdit">
+                                            <button onclick="edit('{{$v.id}}','{{$v.name}}','{{$v.swcount}}','{{$v.nums}}','{{$v.price}}','{{$v.spec}}')" type="button" id="delbtn" class="btn btn-success" data-toggle="modal"
+                                                data-target="#AddEdit">
                                                 编辑
                                             </button>
                                         </td>
@@ -183,11 +202,14 @@
                 $("#modalContent").text("你确定要删除 商品 - " + name + "  吗?")
                 $("#deleteit").attr("href", "/delgoods?id=" + id)
             }
-            edit = function (id, names,swcount) {
+            edit = function (id, names, swcount, nums, price, spec) {
                 $("#ModalAddMenuTitle").text("编辑记录")
                 $("#handelAction").attr("action", "/editgoods?id=" + id)
                 $("#name").attr("value", names)
                 $("#swcount").attr("value", swcount)
+                $("#nums").attr("value", nums)
+                $("#price").attr("value", price)
+                $("#spec").attr("value", spec)
                 $.ajax({
                     url: "/goodscontent?id=" + id,
                     success: function (rs) {
@@ -201,6 +223,9 @@
                 $("#handelAction").attr("action", "/addgoods")
                 $("#name").attr("value", "")
                 $("#swcount").attr("value", "")
+                $("#nums").attr("value", "")
+                $("#price").attr("value", "")
+                $("#spec").attr("value", "")
                 content.val("")
                 editor.txt.html("")
             }

@@ -23,6 +23,24 @@
                     </div>
                     <div class="form-group">
                         <label for="names" class="form-control-label">
+                            商品价格:
+                        </label>
+                        <input type="number" class="form-control" placeholder="商品价格-只允许提交数字" id="price" name="price">
+                    </div>
+                    <div class="form-group">
+                        <label for="names" class="form-control-label">
+                            商品数量:
+                        </label>
+                        <input type="number" class="form-control" placeholder="商品数量-只允许提交整数" id="nums" name="nums">
+                    </div>
+                    <div class="form-group">
+                        <label for="names" class="form-control-label">
+                            商品规格:
+                        </label>
+                        <input type="text" class="form-control" placeholder="商品规格" id="spec" name="spec">
+                    </div>
+                    <div class="form-group">
+                        <label for="names" class="form-control-label">
                             商品兑换条件(方案二)-只限制蝴蝶数量，不限蝴蝶种类:
                         </label>
                         <input type="text" class="form-control" placeholder="蝴蝶数量-只允许提交整数" id="swcount" name="swcount">
