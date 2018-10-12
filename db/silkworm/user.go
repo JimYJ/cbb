@@ -258,3 +258,9 @@ func ReadAwardLog(list []map[string]string) error {
 	tx.Commit()
 	return nil
 }
+
+// UserInviteList 用户邀请统计表
+func UserInviteList() ([]map[string]string, error) {
+	mysqlConn := common.GetMysqlConn()
+	return mysqlConn.GetResults(mysql.Statement, "SELECT count(*) as num,uid FROM invitelogs GROUP BY uid ORDER BY num desc")
+}
