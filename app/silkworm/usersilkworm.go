@@ -6,11 +6,12 @@ import (
 	"canbaobao/route/middleware"
 	log "canbaobao/service/logs"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 喂养物品类型
@@ -386,7 +387,7 @@ func userActiveForApply(pairuid, uid, nowTime string) {
 
 func userActiveForAllow(pairuid, uid, nowTime string) {
 	uname, pairuname := getUserInfo(uid, pairuid)
-	_, err := silkworm.SaveUserActive(silkworm.ActivePairAllowII, uname, uid, "", "0", nowTime, pairuname)
+	_, err := silkworm.SaveUserActive(silkworm.ActivePairAllowII, pairuname, uid, "", "0", nowTime, uname)
 	if err != nil {
 		log.Println("Save Pair User Active Fail", err)
 	}
@@ -398,7 +399,7 @@ func userActiveForAllow(pairuid, uid, nowTime string) {
 
 func userActiveForReject(pairuid, uid, nowTime string) {
 	uname, pairuname := getUserInfo(uid, pairuid)
-	_, err := silkworm.SaveUserActive(silkworm.ActivePairRejectII, uname, uid, "", "0", nowTime, pairuname)
+	_, err := silkworm.SaveUserActive(silkworm.ActivePairRejectII, pairuname, uid, "", "0", nowTime, uname)
 	if err != nil {
 		log.Println("Save Pair User Active Fail", err)
 	}
