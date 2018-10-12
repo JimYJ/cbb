@@ -8,13 +8,14 @@ import (
 	"canbaobao/service"
 	log "canbaobao/service/logs"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
 	wechat    = &service.WeChat{}
-	returnURL = "http://cbb.naiba168.com/sw/index.html"
+	returnURL = "http://cbb.naiba168.com/sw/setup.html"
 )
 
 // Start 转跳授权
