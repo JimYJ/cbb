@@ -165,6 +165,9 @@ func Web() {
 	// 用户管理
 	bms.GET("/user", middleware.CheckUserMenu("/user"), silkworm.User)
 
+	// 用户管理
+	bms.Any("/userinvite", middleware.CheckUserMenu("/userinvite"), silkworm.UserInvite)
+
 	// 问题管理页
 	bms.GET("/question", middleware.CheckUserMenu("/question"), silkworm.Question)
 	// 删除问题

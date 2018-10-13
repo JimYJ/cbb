@@ -27,9 +27,9 @@ func EditVoucher(vid, nowTime, id string) (int64, error) {
 func getVoucher(vid string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	if vid == "0" {
-		return mysqlConn.GetResults(mysql.Statement, "select voucher.id,vendorid,content, uid, voucher.status,startday,endday,vtype,voucher.updatetime,`user`.name,vendor.`name` as vendorname from voucher LEFT JOIN `user` on uid = `user`.id LEFT JOIN vendor on vendorid = vendor.id ORDER BY voucher.id desc")
+		return mysqlConn.GetResults(mysql.Statement, "select voucher.id,vendorid,content, uid, voucher.status,startday,endday,vtype,voucher.updatetime,`user`.name,vendor.`name` as vendorname from voucher LEFT JOIN `user` on uid = `user`.id LEFT JOIN litemall_vendor vendor on vendorid = vendor.id ORDER BY voucher.id desc")
 	}
-	return mysqlConn.GetResults(mysql.Statement, "select voucher.id,vendorid,content, uid, status,startday,endday,vtype,voucher.updatetime,`user`.name,vendor.`name` as vendorname from voucher LEFT JOIN `user` on uid = `user`.id LEFT JOIN vendor on vendorid = vendor.id  where vendorid = ? ORDER BY voucher.id desc", vid)
+	return mysqlConn.GetResults(mysql.Statement, "select voucher.id,vendorid,content, uid, status,startday,endday,vtype,voucher.updatetime,`user`.name,vendor.`name` as vendorname from voucher LEFT JOIN `user` on uid = `user`.id LEFT JOIN litemall_vendor vendor on vendorid = vendor.id  where vendorid = ? ORDER BY voucher.id desc", vid)
 }
 
 // GetVoucher 获取兑换券

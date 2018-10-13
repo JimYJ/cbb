@@ -10,8 +10,23 @@ import (
 // AddUser 新增未激活用户
 func AddUser(avatar, name, loginip, openid, nowTime string) (int64, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.Insert(mysql.Statement, "insert into user set avatar = ?,name = ?,treelevel = ?,level = ?,loginip = ?,openid = ?,logintime = ?,createtime = ?,updatetime = ?,enabled = ?",
+	tx, _ := mysqlConn.Begin()
+	userId, _ := mysqlConn.GetVal(mysql.Statement, "select id from litemall_user where weixin_openid = ?", openid)
+	var err error
+	if userId == "" {
+		result, err := tx.Insert("insert into litemall_user set avatar = ?,username = ?,nickname = ?,last_login_ip = ?,weixin_openid = ?,last_login_time = ?,add_time = ?", avatar, name, name, loginip, openid, nowTime, nowTime)
+		if err != nil {
+			return result, err
+		}
+	}
+	result, err := tx.Insert("insert into user set avatar = ?,name = ?,treelevel = ?,level = ?,loginip = ?,openid = ?,logintime = ?,createtime = ?,updatetime = ?,enabled = ?",
 		avatar, name, 1, 0, loginip, openid, nowTime, nowTime, nowTime, 0)
+	if err != nil {
+		tx.Rollback()
+		return result, err
+	}
+	tx.Commit()
+	return result, err
 }
 
 // UserBindVendor 绑定店铺，激活用户
@@ -42,6 +57,20 @@ func getUser() ([]map[string]string, error) {
 func GetUserForTimer() ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	return mysqlConn.GetResults(mysql.Statement, "select id,name,sproutleafs,sproutleafday,treelevel from user ORDER BY id desc")
+}
+
+// GetUserList 获取用户列表
+func GetUserList() (map[string]string, map[string]string, map[string]string) {
+	list, _ := GetUser()
+	unameList := make(map[string]string)
+	ulevelList := make(map[string]string)
+	vendorList := make(map[string]string)
+	for _, v := range list {
+		unameList[v["id"]] = v["name"]
+		ulevelList[v["id"]] = v["level"]
+		vendorList[v["id"]] = v["vendor"]
+	}
+	return unameList, ulevelList, vendorList
 }
 
 // GetUser 获取用户
@@ -219,9 +248,9 @@ func CheckUserExist(openid string) (int, error) {
 func GetUserForAreaVendor(province, city string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
 	if len(city) == 0 {
-		return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and `user`.id is not NULL", province)
+		return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM litemall_vendor vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and `user`.id is not NULL", province)
 	}
-	return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and city = ? and `user`.id is not NULL", province, city)
+	return mysqlConn.GetResults(mysql.Statement, "select `user`.id,`user`.`name`,`user`.vid FROM litemall_vendor vendor LEFT JOIN `user` on vendor.id = `user`.vid WHERE province = ? and city = ? and `user`.id is not NULL", province, city)
 }
 
 // UserInviteAwardLog 发放邀请用户奖励记录
@@ -260,7 +289,10 @@ func ReadAwardLog(list []map[string]string) error {
 }
 
 // UserInviteList 用户邀请统计表
-func UserInviteList() ([]map[string]string, error) {
+func UserInviteList(startDay, endDay string) ([]map[string]string, error) {
 	mysqlConn := common.GetMysqlConn()
-	return mysqlConn.GetResults(mysql.Statement, "SELECT count(*) as num,uid FROM invitelogs GROUP BY uid ORDER BY num desc")
+	if len(startDay) == 0 || len(endDay) == 0 {
+		return mysqlConn.GetResults(mysql.Statement, "SELECT count(*) as num,uid FROM invitelogs GROUP BY uid ORDER BY num desc")
+	}
+	return mysqlConn.GetResults(mysql.Statement, "SELECT count(*) as num,uid FROM invitelogs where createtime < ? and createtime > ? GROUP BY uid ORDER BY num desc", endDay, startDay)
 }

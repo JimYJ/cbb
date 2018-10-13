@@ -26,6 +26,26 @@ func User(c *gin.Context) {
 	})
 }
 
+// UserInvite 用户邀请统计列表
+func UserInvite(c *gin.Context) {
+	startDay := c.PostForm("startday")
+	endDay := c.PostForm("endday")
+	unameList, ulevelList, vendorList := silkworm.GetUserList()
+	inviteList, _ := silkworm.UserInviteList(startDay, endDay)
+	for i := 0; i < len(inviteList); i++ {
+		inviteList[i]["username"] = unameList[inviteList[i]["uid"]]
+		inviteList[i]["userlevel"] = ulevelList[inviteList[i]["uid"]]
+		inviteList[i]["uservendor"] = vendorList[inviteList[i]["uid"]]
+	}
+	title, content := common.GetAlertMsg(c.Query("t"), c.Query("c"))
+	c.HTML(200, "userinvite.html", gin.H{
+		"menu":         system.GetMenu(),
+		"list":         inviteList,
+		"alerttitle":   title,
+		"alertcontext": content,
+	})
+}
+
 // UserInfoByID 获取用户信息
 func UserInfoByID(c *gin.Context) {
 	id := c.PostForm("id")
